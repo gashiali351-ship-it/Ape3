@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Autoparts Express</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0D0F14;color:#E8ECF4;font-family:'Segoe UI',system-ui,sans-serif;display:flex;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button,input,select,textarea{font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:2px solid #F97316;outline-offset:-1px;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#161A22;}::-webkit-scrollbar-thumb{background:#2E3748;border-radius:3px;}
+
+/* SIDEBAR */
+#sidebar{width:200px;background:#161A22;border-right:1px solid #252C3B;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s;}
+.logo{padding:18px 16px 14px;border-bottom:1px solid #252C3B;}
+.logo-title{color:#F97316;font-weight:900;font-size:16px;}
+.logo-sub{color:#7A8499;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:2px;}
+.nav{flex:1;overflow-y:auto;padding-top:6px;}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:none;border-left:3px solid transparent;color:#7A8499;padding:11px 14px;cursor:pointer;font-size:13px;font-weight:400;text-align:left;transition:all .15s;}
+.nav-btn:hover{color:#E8ECF4;background:rgba(249,115,22,0.07);}
+.nav-btn.active{color:#E8ECF4;background:rgba(249,115,22,0.13);border-left-color:#F97316;font-weight:700;}
+.nav-btn .badge{background:#F97316;color:#fff;font-size:9px;font-weight:900;border-radius:4px;padding:1px 5px;margin-left:auto;}
+.key-section{padding:10px 12px;border-top:1px solid #252C3B;}
+.key-label{color:#7A8499;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
+.key-input{width:100%;background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:6px;padding:7px 8px;font-size:11px;}
+.key-save{margin-top:5px;width:100%;background:#F97316;color:#fff;border:none;border-radius:6px;padding:6px;cursor:pointer;font-size:11px;font-weight:700;}
+.key-save.ok{background:#22C55E;}
+.version{padding:8px 14px;border-top:1px solid #252C3B;color:#4A5568;font-size:10px;}
+
+/* MAIN */
+#main{margin-left:200px;flex:1;padding:22px;overflow-x:hidden;}
+.view{display:none;flex-direction:column;gap:18px;}
+.view.active{display:flex;}
+
+/* COMPONENTS */
+.page-title{font-size:22px;font-weight:800;color:#E8ECF4;}
+.page-sub{font-size:13px;color:#7A8499;margin-top:3px;}
+.stats{display:flex;gap:12px;flex-wrap:wrap;}
+.stat{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:16px;flex:1;min-width:130px;}
+.stat-label{color:#7A8499;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
+.stat-value{font-size:26px;font-weight:800;line-height:1;}
+.stat-sub{color:#7A8499;font-size:12px;margin-top:4px;}
+.card{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:18px;}
+.card.accent-border{border-color:#F97316;}
+.card.red-border{border-color:#EF4444;}
+.section-title{font-size:15px;font-weight:700;color:#E8ECF4;margin-bottom:14px;}
+.badge{display:inline-block;border-radius:6px;padding:2px 9px;font-size:11px;font-weight:700;}
+.badge.in_progress,.badge.offen{background:#1E3A5F;color:#3B82F6;}
+.badge.waiting,.badge.medium{background:#422006;color:#EAB308;}
+.badge.done,.badge.paid,.badge.bezahlt,.badge.low{background:#14532D;color:#22C55E;}
+.badge.critical,.badge.overdue,.badge.ueberfaellig{background:#450A0A;color:#EF4444;}
+.badge.high{background:#431407;color:#FB923C;}
+.job-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #252C3B;flex-wrap:wrap;}
+.job-row:last-child{border-bottom:none;}
+.job-name{font-weight:600;font-size:14px;}
+.job-meta{color:#7A8499;font-size:12px;}
+.price{color:#F97316;font-weight:700;}
+.btn{border:none;border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:700;font-size:13px;}
+.btn-accent{background:#F97316;color:#fff;}
+.btn-accent:hover{background:#ea6c0a;}
+.btn-muted{background:#1E2330;color:#7A8499;}
+.btn-muted:hover{background:#252C3B;}
+.btn-small{padding:5px 10px;font-size:12px;border-radius:6px;}
+.btn-status{border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:600;background:#1E2330;color:#7A8499;}
+.btn-status.active{background:#F97316;color:#fff;}
+.row-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.search-box{width:100%;background:#161A22;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:10px 14px;font-size:14px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.form-input{background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:9px 12px;font-size:13px;width:100%;}
+.form-select{background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:9px 12px;font-size:13px;width:100%;}
+.form-actions{display:flex;gap:8px;margin-top:10px;}
+.part-row{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.part-name{font-weight:700;font-size:14px;}
+.part-meta{color:#7A8499;font-size:12px;margin-top:2px;}
+.part-price{color:#F97316;font-weight:800;font-size:16px;}
+.stock-ok{color:#22C55E;font-size:12px;font-weight:700;}
+.stock-low{color:#EF4444;font-size:12px;font-weight:700;}
+.customer-row{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:14px;cursor:pointer;margin-bottom:8px;}
+.customer-row.selected{border-color:#F97316;}
+.inv-row{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:16px;margin-bottom:8px;}
+.inv-id{color:#F97316;font-weight:700;font-size:13px;}
+.inv-total{font-weight:800;font-size:18px;}
+.inv-sub{color:#7A8499;font-size:11px;}
+.cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.cal-day{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:12px;}
+.cal-day-name{font-weight:700;font-size:13px;margin-bottom:8px;}
+.cal-item{background:#0D0F14;border-left:3px solid #F97316;border-radius:0 6px 6px 0;padding:6px 8px;margin-bottom:6px;}
+.cal-time{color:#F97316;font-size:11px;font-weight:700;}
+.cal-name{font-size:12px;font-weight:600;}
+.cal-svc{color:#7A8499;font-size:11px;}
+
+/* AI */
+.mode-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.mode-btn{border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px;background:#1E2330;color:#7A8499;}
+.mode-btn.active{background:#F97316;color:#fff;}
+.veh-row{display:flex;gap:8px;flex-wrap:wrap;}
+.veh-select{flex:1;min-width:110px;background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:9px 10px;font-size:13px;}
+.chat-box{background:#161A22;border:1px solid #252C3B;border-radius:12px;display:flex;flex-direction:column;min-height:280px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:360px;}
+.chat-empty{color:#7A8499;text-align:center;padding:50px 20px;font-size:14px;line-height:1.8;}
+.msg-user{align-self:flex-end;background:#F97316;color:#fff;border-radius:12px;padding:10px 14px;max-width:88%;font-size:13px;line-height:1.7;word-break:break-word;}
+.msg-ai{align-self:flex-start;background:#1E2330;color:#E8ECF4;border-radius:12px;padding:10px 14px;max-width:90%;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.msg-ai-label{color:#F97316;font-weight:700;font-size:11px;margin-bottom:4px;}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid #252C3B;}
+.chat-input{flex:1;background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:10px 14px;font-size:13px;}
+.chat-send{background:#F97316;color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:13px;}
+.chat-send:disabled{opacity:.5;cursor:not-allowed;}
+.quick-codes{display:flex;gap:6px;flex-wrap:wrap;}
+.quick-code{background:#1E2330;color:#E8ECF4;border:1px solid #252C3B;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;}
+.quick-code:hover{border-color:#F97316;color:#F97316;}
+
+/* MOBILE */
+#menu-toggle{display:none;position:fixed;top:12px;right:12px;z-index:200;background:#F97316;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:18px;}
+@media(max-width:640px){
+  #sidebar{transform:translateX(-100%);}
+  #sidebar.open{transform:translateX(0);}
+  #main{margin-left:0;padding:14px;}
+  #menu-toggle{display:block;}
+  .form-grid{grid-template-columns:1fr;}
+  .stats{flex-direction:column;}
+  .cal-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<button id="menu-toggle" onclick="toggleMenu()">☰</button>
+
+<div id="sidebar">
+  <div class="logo">
+    <div class="logo-title">⚙ AUTOPARTS</div>
+    <div class="logo-sub">EXPRESS · KI-SYSTEM</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showView('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showView('ai',this)">🤖 KI-Assistent <span class="badge">KI</span></button>
+    <button class="nav-btn" onclick="showView('workshop',this)">🔧 Werkstatt</button>
+    <button class="nav-btn" onclick="showView('parts',this)">📦 Teile & Lager</button>
+    <button class="nav-btn" onclick="showView('customers',this)">👥 Kunden</button>
+    <button class="nav-btn" onclick="showView('invoices',this)">💶 Rechnungen</button>
+    <button class="nav-btn" onclick="showView('appointments',this)">📅 Termine</button>
+  </nav>
+  <div class="key-section">
+    <div class="key-label">ANTHROPIC API-KEY</div>
+    <input class="key-input" type="password" id="apiKeyField" placeholder="sk-ant-..." oninput="apiKeyChanged()">
+    <button class="key-save" id="keySaveBtn" onclick="saveKey()">Speichern</button>
+  </div>
+  <div class="version">Autoparts Express v2.0</div>
+</div>
+
+<div id="main">
+
+<!-- DASHBOARD -->
+<div id="view-dashboard" class="view active">
+  <div><div class="page-title">📊 Dashboard</div><div class="page-sub" id="today-date"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">UMSATZ MONAT</div><div class="stat-value" style="color:#22C55E">€12.840</div><div class="stat-sub">+8% zum Vormonat</div></div>
+    <div class="stat"><div class="stat-label">OFFENE AUFTRÄGE</div><div class="stat-value" style="color:#3B82F6" id="open-jobs-count">2</div><div class="stat-sub">aktive Jobs</div></div>
+    <div class="stat"><div class="stat-label">LAGERWARNUNGEN</div><div class="stat-value" style="color:#EF4444" id="low-stock-count">2</div><div class="stat-sub">unter Mindestbestand</div></div>
+    <div class="stat"><div class="stat-label">KUNDEN GESAMT</div><div class="stat-value">138</div><div class="stat-sub">12 neue diesen Monat</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">🔧 Aktive Aufträge</div>
+    <div id="dashboard-jobs"></div>
+  </div>
+  <div class="card red-border" id="stock-warning-card">
+    <div class="section-title" style="color:#EF4444">⚠ Lagerwarnung</div>
+    <div id="stock-warnings"></div>
+  </div>
+</div>
+
+<!-- AI -->
+<div id="view-ai" class="view">
+  <div><div class="page-title">🤖 KI-Assistent</div><div class="page-sub">OBD-Codes · Teilesuche · Diagnose · Alle Fahrzeuge weltweit</div></div>
+  <div class="mode-btns">
+    <button class="mode-btn active" id="mode-obd" onclick="setMode('obd')">🔴 OBD Fehlercode</button>
+    <button class="mode-btn" id="mode-parts" onclick="setMode('parts')">🔩 Teilesuche</button>
+    <button class="mode-btn" id="mode-diagnose" onclick="setMode('diagnose')">🔬 Diagnose-Hilfe</button>
+  </div>
+  <div class="card">
+    <div class="key-label" style="margin-bottom:8px">FAHRZEUG AUSWÄHLEN (OPTIONAL)</div>
+    <div class="veh-row">
+      <select class="veh-select" id="veh-brand" onchange="updateModels()">
+        <option value="">Alle Marken</option>
+      </select>
+      <select class="veh-select" id="veh-model"><option value="">Alle Modelle</option></select>
+      <input class="veh-select" style="width:100px;flex:none" id="veh-year" placeholder="Bj. z.B. 2020" maxlength="4">
+    </div>
+  </div>
+  <div class="chat-box">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="chat-empty" id="chat-empty">Fehlercode eingeben z.B. P0300<br>oder Symptom beschreiben...</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Fehlercode z.B. P0300 oder Symptom..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-send" id="chat-send-btn" onclick="sendMsg()">▶ Senden</button>
+    </div>
+  </div>
+  <div class="card" style="padding:14px">
+    <div class="key-label" style="margin-bottom:8px">⚡ HÄUFIGE FEHLERCODES</div>
+    <div class="quick-codes" id="quick-codes"></div>
+  </div>
+</div>
+
+<!-- WORKSHOP -->
+<div id="view-workshop" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">🔧 Werkstatt & Aufträge</div><div class="page-sub" id="workshop-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewJob()">+ Neuer Auftrag</button>
+  </div>
+  <div class="card accent-border" id="new-job-form" style="display:none">
+    <div class="section-title">Neuen Auftrag erstellen</div>
+    <div class="form-grid">
+      <input class="form-input" id="nj-customer" placeholder="Kunde *">
+      <input class="form-input" id="nj-vehicle" placeholder="Fahrzeug *">
+      <input class="form-input" id="nj-plate" placeholder="Kennzeichen">
+      <input class="form-input" id="nj-service" placeholder="Leistung">
+      <input class="form-input" id="nj-mechanic" placeholder="Mechaniker">
+      <input class="form-input" id="nj-start" placeholder="Startzeit">
+      <input class="form-input" id="nj-est" placeholder="Fertig ca.">
+      <input class="form-input" id="nj-price" placeholder="Preis (€)" type="number">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addJob()">Erstellen</button>
+      <button class="btn btn-muted" onclick="toggleNewJob()">Abbrechen</button>
+    </div>
+  </div>
+  <div id="jobs-list"></div>
+</div>
+
+<!-- PARTS -->
+<div id="view-parts" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">📦 Teile & Lager</div><div class="page-sub" id="parts-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewPart()">+ Neues Teil</button>
+  </div>
+  <div class="card accent-border" id="new-part-form" style="display:none">
+    <div class="section-title">Neues Teil anlegen</div>
+    <div class="form-grid">
+      <input class="form-input" id="np-name" placeholder="Bezeichnung *">
+      <input class="form-input" id="np-sku" placeholder="SKU *">
+      <input class="form-input" id="np-brand" placeholder="Marke">
+      <input class="form-input" id="np-fit" placeholder="Kompatibel mit">
+      <input class="form-input" id="np-price" placeholder="Preis (€)" type="number">
+      <input class="form-input" id="np-stock" placeholder="Bestand (Stk)" type="number">
+      <input class="form-input" id="np-min" placeholder="Mindestbestand" type="number">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addPart()">Speichern</button>
+      <button class="btn btn-muted" onclick="toggleNewPart()">Abbrechen</button>
+    </div>
+  </div>
+  <input class="search-box" id="parts-search" placeholder="🔍 Suchen (Name, SKU, Marke)..." oninput="renderParts()">
+  <div id="parts-list"></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div id="view-customers" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">👥 Kunden & Fahrzeuge</div><div class="page-sub" id="customers-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewCustomer()">+ Neuer Kunde</button>
+  </div>
+  <div class="card accent-border" id="new-customer-form" style="display:none">
+    <div class="section-title">Neuen Kunden anlegen</div>
+    <div class="form-grid">
+      <input class="form-input" id="nc-name" placeholder="Name *">
+      <input class="form-input" id="nc-phone" placeholder="Telefon">
+      <input class="form-input" id="nc-email" placeholder="E-Mail">
+      <input class="form-input" id="nc-vehicle" placeholder="Fahrzeug (z.B. BMW 3er 2020)">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addCustomer()">Speichern</button>
+      <button class="btn btn-muted" onclick="toggleNewCustomer()">Abbrechen</button>
+    </div>
+  </div>
+  <input class="search-box" id="customers-search" placeholder="🔍 Kunden suchen..." oninput="renderCustomers()">
+  <div id="customers-list"></div>
+</div>
+
+<!-- INVOICES -->
+<div id="view-invoices" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">💶 Rechnungen</div><div class="page-sub" id="invoices-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewInvoice()">+ Neue Rechnung</button>
+  </div>
+  <div class="stats" id="inv-stats"></div>
+  <div class="card accent-border" id="new-invoice-form" style="display:none">
+    <div class="section-title">Neue Rechnung erstellen</div>
+    <div class="form-grid">
+      <input class="form-input" id="ni-customer" placeholder="Kunde *">
+      <input class="form-input" id="ni-service" placeholder="Leistung">
+      <input class="form-input" id="ni-net" placeholder="Nettobetrag (€)" type="number" oninput="calcVat()">
+      <select class="form-select" id="ni-status">
+        <option value="open">Offen</option>
+        <option value="paid">Bezahlt</option>
+        <option value="overdue">Überfällig</option>
+      </select>
+    </div>
+    <div id="vat-preview" style="color:#7A8499;font-size:12px;margin-top:6px"></div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addInvoice()">Erstellen</button>
+      <button class="btn btn-muted" onclick="toggleNewInvoice()">Abbrechen</button>
+    </div>
+  </div>
+  <div id="invoices-list"></div>
+</div>
+
+<!-- APPOINTMENTS -->
+<div id="view-appointments" class="view">
+  <div><div class="page-title">📅 Terminkalender</div><div class="page-sub" id="cal-month"></div></div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <button class="btn btn-muted" style="align-self:flex-start;margin-top:4px">+ Neuen Termin</button>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const BRANDS = {
+  "Volkswagen":["Golf","Polo","Passat","Tiguan","Touareg","ID.4","Caddy","T-Roc"],
+  "BMW":["1er","2er","3er","4er","5er","7er","X1","X3","X5","X7","M3","M5","Z4"],
+  "Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","S-Klasse","GLA","GLC","GLE"],
+  "Audi":["A1","A3","A4","A5","A6","A7","A8","Q3","Q5","Q7","Q8","TT","R8","e-tron"],
+  "Ford":["Fiesta","Focus","Mondeo","Kuga","Puma","Mustang","Ranger","Transit"],
+  "Toyota":["Yaris","Corolla","Camry","RAV4","Hilux","Land Cruiser","Supra","Prius"],
+  "Opel":["Corsa","Astra","Insignia","Mokka","Crossland","Grandland","Zafira"],
+  "Seat":["Ibiza","Leon","Arona","Ateca","Tarraco","Formentor"],
+  "Skoda":["Fabia","Octavia","Superb","Kodiaq","Karoq","Kamiq","Enyaq"],
+  "Renault":["Clio","Megane","Kadjar","Captur","Scenic","Zoe","Arkana"],
+  "Peugeot":["208","308","508","2008","3008","5008","Partner"],
+  "Fiat":["500","Panda","Tipo","Punto","Ducato","Doblo"],
+  "Honda":["Civic","Accord","CR-V","HR-V","Jazz","Type R"],
+  "Nissan":["Micra","Juke","Qashqai","X-Trail","Leaf","GT-R","Navara"],
+  "Hyundai":["i10","i20","i30","Tucson","Santa Fe","Kona","Ioniq 5"],
+  "Kia":["Picanto","Rio","Ceed","Sportage","Sorento","EV6","Stinger"],
+  "Mazda":["2","3","6","CX-3","CX-5","CX-30","MX-5"],
+  "Volvo":["V40","V60","V90","S60","S90","XC40","XC60","XC90"],
+  "Land Rover":["Defender","Discovery","Range Rover","Evoque","Velar"],
+  "Jeep":["Wrangler","Grand Cherokee","Cherokee","Compass","Renegade"],
+  "Porsche":["911","Cayenne","Macan","Panamera","Taycan","Boxster"],
+  "Tesla":["Model S","Model 3","Model X","Model Y","Cybertruck"],
+  "Chevrolet":["Spark","Cruze","Equinox","Tahoe","Silverado","Camaro","Corvette"],
+  "Lexus":["IS","ES","LS","UX","NX","RX","LX","LC"],
+  "Subaru":["Impreza","Forester","Outback","XV","WRX","BRZ"],
+  "Mitsubishi":["Eclipse Cross","Outlander","L200","ASX","Pajero"],
+  "Suzuki":["Swift","Vitara","Jimny","S-Cross","Baleno"],
+  "Dacia":["Sandero","Logan","Duster","Spring","Jogger"],
+  "BYD":["Atto 3","Han","Tang","Song Plus","Dolphin","Seal"],
+  "Ferrari":["Roma","SF90","F8 Tributo","296 GTB","812 Superfast"],
+  "Lamborghini":["Huracán","Urus","Revuelto"],
+  "Alfa Romeo":["Giulia","Stelvio","Tonale","Giulietta"],
+  "Bentley":["Continental GT","Flying Spur","Bentayga"],
+  "Rolls-Royce":["Ghost","Phantom","Cullinan"],
+  "Maserati":["Ghibli","Quattroporte","Levante","GranTurismo"],
+  "Infiniti":["Q50","Q60","QX50","QX60","QX80"],
+  "Genesis":["G70","G80","G90","GV70","GV80"],
+  "Isuzu":["D-Max","MU-X","Trooper"],
+  "Citroën":["C1","C3","C4","C5","Berlingo","SpaceTourer"],
+};
+
+const OBD = {
+  "P0100":"Luftmassensensor – Stromkreis Fehlfunktion",
+  "P0115":"Kühlmitteltemperatursensor – Kreisfehler",
+  "P0120":"Drosselklappensensor A – Kreisfehler",
+  "P0128":"Kühlmitteltemperatur unter Thermostat-Sollwert",
+  "P0130":"O2-Sensor Stromkreis, Bank 1 Sensor 1",
+  "P0171":"Kraftstoffsystem zu mager, Bank 1",
+  "P0172":"Kraftstoffsystem zu fett, Bank 1",
+  "P0200":"Einspritzventil Stromkreis Fehlfunktion",
+  "P0300":"Mehrfache/zufällige Zylinder-Aussetzer",
+  "P0301":"Zündaussetzer Zylinder 1",
+  "P0302":"Zündaussetzer Zylinder 2",
+  "P0303":"Zündaussetzer Zylinder 3",
+  "P0304":"Zündaussetzer Zylinder 4",
+  "P0340":"Nockenwellenpositionssensor A – Kreisfehler",
+  "P0400":"AGR Durchfluss Fehlfunktion",
+  "P0420":"Katalysator Effizienz unter Schwellenwert",
+  "P0440":"Tankentlüftungssystem Fehlfunktion",
+  "P0455":"Tankentlüftungssystem großes Leck",
+  "P0480":"Kühlerlüfter Steuer-Kreisfehler",
+  "P0500":"Fahrzeuggeschwindigkeitssensor Fehlfunktion",
+  "P0505":"Leerlaufregelventil Fehlfunktion",
+  "P0700":"Getriebesteuerungssystem Fehlfunktion",
+  "P0730":"Falsches Übersetzungsverhältnis",
+  "U0001":"CAN-Bus Kommunikationsfehler",
+  "U0100":"Verlust der Kommunikation mit ECM/PCM",
+  "C0031":"Linkes Vorderrad-Drehzahlsensor Kreisfehler",
+  "C0035":"Linkes Hinterrad-Drehzahlsensor Kreisfehler",
+  "C0110":"ABS-Pumpenmotor Kreisfehler",
+};
+
+let jobs = [
+  {id:1,customer:"Marcus Hoffmann",vehicle:"BMW 3er 2019",plate:"EN-MH 4521",service:"Inspektion + Ölwechsel",mechanic:"Kerim Y.",status:"in_progress",start:"09:00",est:"11:00",price:189},
+  {id:2,customer:"Sandra Koch",vehicle:"VW Golf 2021",plate:"M-SK 7834",service:"Bremsbeläge VA + HA",mechanic:"Mehmet A.",status:"waiting",start:"11:30",est:"13:30",price:320},
+  {id:3,customer:"Julia Berger",vehicle:"Audi A4 2022",plate:"M-JB 6612",service:"Fehlercode P0300 Diagnose",mechanic:"Kerim Y.",status:"done",start:"08:00",est:"09:30",price:95},
+];
+let parts = [
+  {id:1,name:"Ölfilter Universal",sku:"OF-001",price:8.90,stock:47,min:10,brand:"Mann-Filter",fit:"VW, Audi, Seat"},
+  {id:2,name:"Bremsscheiben Set VA",sku:"BS-BMW3-VA",price:89.90,stock:3,min:5,brand:"Brembo",fit:"BMW 3er 4er"},
+  {id:3,name:"Zündkerzen Set NGK",sku:"ZK-NGK-B6S",price:24.50,stock:28,min:8,brand:"NGK",fit:"Universell 4-Zyl."},
+  {id:4,name:"Luftfilter VW Golf VII",sku:"LF-VWGOLF7",price:14.20,stock:12,min:5,brand:"Bosch",fit:"VW Golf VII 1.4 TSI"},
+  {id:5,name:"Stoßdämpfer HA MB C204",sku:"SD-MB-C204",price:145,stock:2,min:3,brand:"Bilstein",fit:"Mercedes C W204"},
+  {id:6,name:"Keilrippenriemen BMW N47",sku:"KR-BMW-N47",price:32.80,stock:8,min:4,brand:"ContiTech",fit:"BMW N47 Diesel"},
+  {id:7,name:"Kühlmittel Konzentrat 1L",sku:"KM-1L",price:12.50,stock:34,min:10,brand:"Febi",fit:"Universell"},
+  {id:8,name:"Getriebeöl ATF 1L",sku:"GO-ATF",price:18.90,stock:6,min:5,brand:"Liqui-Moly",fit:"Automatikgetriebe"},
+];
+let customers = [
+  {id:1,name:"Marcus Hoffmann",phone:"+49 89 4521 8734",email:"m.hoffmann@email.de",vehicles:["BMW 3er (2019) – EN-MH 4521"]},
+  {id:2,name:"Sandra Koch",phone:"+49 89 7834 2211",email:"s.koch@web.de",vehicles:["VW Golf (2021) – M-SK 7834","Opel Corsa (2018)"]},
+  {id:3,name:"Dimitri Papadopoulos",phone:"+49 89 3312 9900",email:"d.papa@gmail.com",vehicles:["Mercedes C-Klasse (2020)"]},
+  {id:4,name:"Julia Berger",phone:"+49 89 6612 4400",email:"j.berger@t-online.de",vehicles:["Audi A4 (2022) – M-JB 6612"]},
+];
+let invoices = [
+  {id:"RE-2025-041",customer:"Marcus Hoffmann",service:"Inspektion + Ölwechsel",date:"09.06.2025",net:159,tax:30.21,total:189.21,status:"paid"},
+  {id:"RE-2025-040",customer:"Sandra Koch",service:"Bremsbeläge VA + HA",date:"08.06.2025",net:268.91,tax:51.09,total:320,status:"open"},
+  {id:"RE-2025-039",customer:"Julia Berger",service:"Diagnose Fehlercode",date:"07.06.2025",net:79.83,tax:15.17,total:95,status:"paid"},
+  {id:"RE-2025-038",customer:"Dimitri Papadopoulos",service:"Stoßdämpfer HA",date:"05.06.2025",net:453.78,tax:86.22,total:540,status:"overdue"},
+];
+const appointments = [
+  {day:0,time:"08:00",name:"Marcus Hoffmann",svc:"Inspektion",dur:120},
+  {day:0,time:"11:00",name:"Sandra Koch",svc:"Bremsen",dur:120},
+  {day:1,time:"09:00",name:"Julia Berger",svc:"Diagnose",dur:90},
+  {day:2,time:"10:30",name:"Dimitri P.",svc:"Stoßdämpfer",dur:180},
+  {day:3,time:"14:00",name:"Neukunde",svc:"Reifenwechsel",dur:60},
+  {day:4,time:"08:30",name:"Sandra Koch",svc:"Abholung",dur:30},
+];
+
+// ── INIT ──
+let aiMode = 'obd';
+let selectedCustomer = null;
+
+window.onload = function() {
+  // Date
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('cal-month').textContent = new Date().toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+
+  // Load key
+  const k = localStorage.getItem('ape_apikey') || '';
+  document.getElementById('apiKeyField').value = k;
+  if(k) { document.getElementById('keySaveBtn').textContent = '✓ Gespeichert'; document.getElementById('keySaveBtn').className = 'key-save ok'; }
+
+  // Vehicle brands
+  const bs = document.getElementById('veh-brand');
+  Object.keys(BRANDS).sort().forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; bs.appendChild(o); });
+
+  // Quick codes
+  const qc = document.getElementById('quick-codes');
+  ['P0300','P0171','P0420','P0115','U0001','P0340','P0700','C0031','P0172','P0128'].forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-code'; btn.textContent = c;
+    btn.title = OBD[c] || c;
+    btn.onclick = () => { document.getElementById('chat-input').value = c; aiMode = 'obd'; setMode('obd'); };
+    qc.appendChild(btn);
+  });
+
+  renderAll();
+};
+
+function renderAll() {
+  renderDashboard(); renderJobs(); renderParts(); renderCustomers(); renderInvoices(); renderCalendar();
+}
+
+// ── NAVIGATION ──
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(window.innerWidth <= 640) document.getElementById('sidebar').classList.remove('open');
+}
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ── API KEY ──
+function apiKeyChanged() {
+  document.getElementById('keySaveBtn').textContent = 'Speichern';
+  document.getElementById('keySaveBtn').className = 'key-save';
+}
+function saveKey() {
+  const v = document.getElementById('apiKeyField').value.trim();
+  localStorage.setItem('ape_apikey', v);
+  document.getElementById('keySaveBtn').textContent = '✓ Gespeichert!';
+  document.getElementById('keySaveBtn').className = 'key-save ok';
+  setTimeout(() => {
+    document.getElementById('keySaveBtn').textContent = '✓ Aktiv';
+  }, 1500);
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const openJobs = jobs.filter(j => j.status !== 'done');
+  const lowStock = parts.filter(p => p.stock < p.min);
+  document.getElementById('open-jobs-count').textContent = openJobs.length;
+  document.getElementById('low-stock-count').textContent = lowStock.length;
+  document.getElementById('low-stock-count').style.color = lowStock.length > 0 ? '#EF4444' : '#22C55E';
+
+  const sl = {in_progress:'In Arbeit', waiting:'Wartet', done:'Fertig'};
+  document.getElementById('dashboard-jobs').innerHTML = jobs.map(j => `
+    <div class="job-row">
+      <span class="badge ${j.status}">${sl[j.status]}</span>
+      <div style="flex:1"><div class="job-name">${j.customer} · <span style="color:#7A8499;font-weight:400">${j.vehicle}</span></div>
+      <div class="job-meta">${j.service} · 👤 ${j.mechanic}</div></div>
+      <span class="price">€${j.price}</span>
+      <span style="color:#7A8499;font-size:12px">${j.start}–${j.est}</span>
+    </div>`).join('');
+
+  if(lowStock.length > 0) {
+    document.getElementById('stock-warning-card').style.display = 'block';
+    document.getElementById('stock-warnings').innerHTML = lowStock.map(p =>
+      `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #252C3B;font-size:13px"><span>${p.name}</span><span style="color:#EF4444;font-weight:700">Bestand: ${p.stock} | Min: ${p.min}</span></div>`
+    ).join('');
+  } else {
+    document.getElementById('stock-warning-card').style.display = 'none';
+  }
+}
+
+// ── AI ──
+function setMode(m) {
+  aiMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  const ph = {obd:'Fehlercode z.B. P0300 oder Symptom...', parts:'Teil oder Problem beschreiben...', diagnose:'Symptom genau beschreiben...'};
+  document.getElementById('chat-input').placeholder = ph[m];
+  document.getElementById('chat-empty').innerHTML = {
+    obd:'Fehlercode eingeben z.B. P0300<br>oder Symptom beschreiben...',
+    parts:'Fahrzeug + Problem beschreiben<br>welches Teil wird gesucht...',
+    diagnose:'Symptom genau beschreiben<br>KI gibt Schritt-für-Schritt Diagnose...'
+  }[m];
+}
+
+function updateModels() {
+  const brand = document.getElementById('veh-brand').value;
+  const sel = document.getElementById('veh-model');
+  sel.innerHTML = '<option value="">Alle Modelle</option>';
+  if(brand && BRANDS[brand]) {
+    BRANDS[brand].forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; sel.appendChild(o); });
+  }
+}
+
+function addChatMsg(role, text) {
+  const box = document.getElementById('chat-msgs');
+  const empty = document.getElementById('chat-empty');
+  if(empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = role === 'user' ? 'msg-user' : 'msg-ai';
+  if(role === 'ai') div.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>' + escHtml(text);
+  else div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+async function sendMsg() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  const key = localStorage.getItem('ape_apikey') || '';
+  if(!key) {
+    addChatMsg('ai', '⚠ Kein API-Key gespeichert!\nBitte unten links in der Sidebar den Anthropic API-Key eintragen und auf Speichern drücken.');
+    return;
+  }
+  inp.value = '';
+  document.getElementById('chat-send-btn').disabled = true;
+  addChatMsg('user', txt);
+  const loadDiv = addChatMsg('ai', '⏳ KI analysiert...');
+
+  const brand = document.getElementById('veh-brand').value;
+  const model = document.getElementById('veh-model').value;
+  const year = document.getElementById('veh-year').value;
+  const veh = brand ? `Fahrzeug: ${brand} ${model} ${year}\n` : '';
+
+  const code = txt.toUpperCase().match(/[PBCU][0-9]{4}/)?.[0];
+  const obdDesc = code ? OBD[code] : null;
+
+  let sys = '', prompt = '';
+  if(aiMode === 'obd') {
+    sys = 'Du bist ein erfahrener Kfz-Mechatroniker. Antworte auf Deutsch, präzise und strukturiert. Gliedere: 1) Was bedeutet der Code/das Symptom 2) Wo liegt das Problem genau 3) Was muss geprüft oder getauscht werden 4) Geschätzter Aufwand in Stunden und Euro.';
+    prompt = obdDesc ? `${veh}Fehlercode: ${code}\nBeschreibung: ${obdDesc}\n\nErkläre genau was das bedeutet, wo das Problem liegt und was zu tun ist.` : `${veh}Fehlercode oder Symptom: ${txt}\nAnalysiere und gib eine detaillierte Diagnose.`;
+  } else if(aiMode === 'parts') {
+    sys = 'Du bist ein Kfz-Teile-Experte. Antworte auf Deutsch. Nenne konkrete Teile, Marken (Brembo/Bosch/NGK/Mann/Bilstein/ContiTech), Preisrahmen und wichtige Montagehinweise.';
+    prompt = `${veh}Gesuchtes Teil / Problem: ${txt}\nWelche Teile werden benötigt, welche Marken, Preisrahmen, Besonderheiten?`;
+  } else {
+    sys = 'Du bist Senior Kfz-Mechatroniker mit 20 Jahren Erfahrung. Antworte auf Deutsch, Schritt-für-Schritt mit konkreten Prüfschritten, geordnet nach Wahrscheinlichkeit.';
+    prompt = `${veh}Problem / Symptom: ${txt}\nSystematische Diagnose-Anleitung mit konkreten Prüfschritten.`;
+  }
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1024,system:sys,messages:[{role:'user',content:prompt}]})
+    });
+    const d = await r.json();
+    if(d.error) { loadDiv.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>⚠ API Fehler: ' + escHtml(d.error.message); }
+    else { const ans = d.content?.map(b=>b.text||'').join('')||'Keine Antwort.'; loadDiv.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>' + escHtml(ans); }
+  } catch(e) {
+    loadDiv.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>⚠ Verbindungsfehler: ' + escHtml(e.message);
+  }
+  document.getElementById('chat-send-btn').disabled = false;
+  document.getElementById('chat-msgs').scrollTop = 9999;
+}
+
+// ── WORKSHOP ──
+function toggleNewJob() {
+  const f = document.getElementById('new-job-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addJob() {
+  const c = document.getElementById('nj-customer').value.trim();
+  if(!c) return;
+  jobs.unshift({id:Date.now(),customer:c,vehicle:document.getElementById('nj-vehicle').value,plate:document.getElementById('nj-plate').value,service:document.getElementById('nj-service').value,mechanic:document.getElementById('nj-mechanic').value,status:'waiting',start:document.getElementById('nj-start').value,est:document.getElementById('nj-est').value,price:+document.getElementById('nj-price').value||0});
+  ['nj-customer','nj-vehicle','nj-plate','nj-service','nj-mechanic','nj-start','nj-est','nj-price'].forEach(id=>document.getElementById(id).value='');
+  toggleNewJob(); renderJobs(); renderDashboard();
+}
+function setJobStatus(id, s) {
+  jobs = jobs.map(j => j.id===id ? {...j,status:s} : j);
+  renderJobs(); renderDashboard();
+}
+function renderJobs() {
+  const sl = {in_progress:'In Arbeit', waiting:'Wartet', done:'Fertig'};
+  document.getElementById('workshop-count').textContent = jobs.filter(j=>j.status!=='done').length + ' aktive Aufträge';
+  document.getElementById('jobs-list').innerHTML = jobs.map(j => `
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div><div class="job-name">${j.customer}</div><div class="job-meta">🚗 ${j.vehicle} · ${j.plate}</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="badge ${j.status}">${sl[j.status]}</span><span class="price" style="font-size:16px;font-weight:800">€${j.price}</span></div>
+      </div>
+      <div style="font-size:13px;margin-bottom:6px">🔩 ${j.service}</div>
+      <div class="job-meta" style="margin-bottom:12px">👤 ${j.mechanic} · ⏰ ${j.start}–${j.est}</div>
+      <div class="row-actions">
+        <button class="btn-status ${j.status==='waiting'?'active':''}" onclick="setJobStatus(${j.id},'waiting')">Wartet</button>
+        <button class="btn-status ${j.status==='in_progress'?'active':''}" onclick="setJobStatus(${j.id},'in_progress')">In Arbeit</button>
+        <button class="btn-status ${j.status==='done'?'active':''}" onclick="setJobStatus(${j.id},'done')">Fertig</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── PARTS ──
+function toggleNewPart() {
+  const f = document.getElementById('new-part-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addPart() {
+  const n = document.getElementById('np-name').value.trim();
+  const s = document.getElementById('np-sku').value.trim();
+  if(!n||!s) return;
+  parts.unshift({id:Date.now(),name:n,sku:s,brand:document.getElementById('np-brand').value,fit:document.getElementById('np-fit').value,price:+document.getElementById('np-price').value||0,stock:+document.getElementById('np-stock').value||0,min:+document.getElementById('np-min').value||0});
+  ['np-name','np-sku','np-brand','np-fit','np-price','np-stock','np-min'].forEach(id=>document.getElementById(id).value='');
+  toggleNewPart(); renderParts(); renderDashboard();
+}
+function renderParts() {
+  const q = (document.getElementById('parts-search').value||'').toLowerCase();
+  const f = parts.filter(p => !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q));
+  document.getElementById('parts-count').textContent = parts.length + ' Artikel';
+  document.getElementById('parts-list').innerHTML = f.map(p => `
+    <div class="part-row">
+      <div><div class="part-name">${p.name}</div><div class="part-meta">SKU: ${p.sku} · ${p.brand} · ${p.fit}</div></div>
+      <div style="text-align:right"><div class="part-price">€${Number(p.price).toFixed(2)}</div>
+      <div class="${p.stock<p.min?'stock-low':'stock-ok'}">${p.stock<p.min?'⚠ ':'✓ '}Bestand: ${p.stock}</div></div>
+    </div>`).join('');
+}
+
+// ── CUSTOMERS ──
+function toggleNewCustomer() {
+  const f = document.getElementById('new-customer-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addCustomer() {
+  const n = document.getElementById('nc-name').value.trim();
+  if(!n) return;
+  const v = document.getElementById('nc-vehicle').value.trim();
+  customers.unshift({id:Date.now(),name:n,phone:document.getElementById('nc-phone').value,email:document.getElementById('nc-email').value,vehicles:v?[v]:[]});
+  ['nc-name','nc-phone','nc-email','nc-vehicle'].forEach(id=>document.getElementById(id).value='');
+  toggleNewCustomer(); renderCustomers();
+}
+function renderCustomers() {
+  const q = (document.getElementById('customers-search').value||'').toLowerCase();
+  const f = customers.filter(c => !q || c.name.toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q));
+  document.getElementById('customers-count').textContent = customers.length + ' Kunden';
+  document.getElementById('customers-list').innerHTML = f.map(c => `
+    <div class="customer-row ${selectedCustomer===c.id?'selected':''}" onclick="toggleCustomer(${c.id})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700">${c.name}</div><div class="job-meta" style="margin-top:2px">📞 ${c.phone} · ✉ ${c.email}</div></div>
+        <div class="job-meta">🚗 ${c.vehicles.length}</div>
+      </div>
+      ${selectedCustomer===c.id ? '<div style="margin-top:10px;border-top:1px solid #252C3B;padding-top:10px">' + (c.vehicles.length ? c.vehicles.map(v=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid #252C3B">🚗 ${v}</div>`).join('') : '<div style="color:#7A8499;font-size:13px">Kein Fahrzeug hinterlegt</div>') + '</div>' : ''}
+    </div>`).join('');
+}
+function toggleCustomer(id) {
+  selectedCustomer = selectedCustomer === id ? null : id;
+  renderCustomers();
+}
+
+// ── INVOICES ──
+function toggleNewInvoice() {
+  const f = document.getElementById('new-invoice-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function calcVat() {
+  const net = +document.getElementById('ni-net').value || 0;
+  document.getElementById('vat-preview').textContent = net ? `MwSt 19%: €${(net*0.19).toFixed(2)} · Brutto: €${(net*1.19).toFixed(2)}` : '';
+}
+function addInvoice() {
+  const c = document.getElementById('ni-customer').value.trim();
+  if(!c) return;
+  const net = +document.getElementById('ni-net').value || 0;
+  const tax = +(net*0.19).toFixed(2);
+  invoices.unshift({id:'RE-2025-'+String(invoices.length+42).padStart(3,'0'),customer:c,service:document.getElementById('ni-service').value,date:new Date().toLocaleDateString('de-DE'),net,tax,total:+(net+tax).toFixed(2),status:document.getElementById('ni-status').value});
+  ['ni-customer','ni-service','ni-net'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vat-preview').textContent='';
+  toggleNewInvoice(); renderInvoices();
+}
+function setInvStatus(id, s) {
+  invoices = invoices.map(i => i.id===id ? {...i,status:s} : i);
+  renderInvoices();
+}
+function renderInvoices() {
+  const sl = {paid:'Bezahlt',open:'Offen',overdue:'Überfällig'};
+  const bc = {paid:'bezahlt',open:'offen',overdue:'ueberfaellig'};
+  document.getElementById('invoices-count').textContent = invoices.length + ' Rechnungen';
+  const open = invoices.filter(i=>i.status==='open').reduce((s,i)=>s+i.total,0);
+  const ovr = invoices.filter(i=>i.status==='overdue').reduce((s,i)=>s+i.total,0);
+  const paid = invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0);
+  document.getElementById('inv-stats').innerHTML = `
+    <div class="stat" style="flex:1;min-width:100px"><div class="stat-label">OFFEN</div><div class="stat-value" style="color:#3B82F6">€${open.toFixed(0)}</div></div>
+    <div class="stat" style="flex:1;min-width:100px"><div class="stat-label">ÜBERFÄLLIG</div><div class="stat-value" style="color:#EF4444">€${ovr.toFixed(0)}</div></div>
+    <div class="stat" style="flex:1;min-width:100px"><div class="stat-label">BEZAHLT</div><div class="stat-value" style="color:#22C55E">€${paid.toFixed(0)}</div></div>`;
+  document.getElementById('invoices-list').innerHTML = invoices.map(inv => `
+    <div class="inv-row">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;flex-wrap:wrap">
+            <span class="inv-id">${inv.id}</span>
+            <span class="badge ${bc[inv.status]}">${sl[inv.status]}</span>
+          </div>
+          <div style="font-weight:600">${inv.customer}</div>
+          <div class="job-meta" style="margin-top:2px">${inv.service} · 📅 ${inv.date}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="inv-total">€${inv.total.toFixed(2)}</div>
+          <div class="inv-sub">Netto: €${inv.net.toFixed(2)} · MwSt: €${inv.tax.toFixed(2)}</div>
+          <div style="display:flex;gap:4px;margin-top:6px;justify-content:flex-end">
+            <button class="btn-status btn-small ${inv.status==='open'?'active':''}" onclick="setInvStatus('${inv.id}','open')">Offen</button>
+            <button class="btn-status btn-small ${inv.status==='paid'?'active':''}" onclick="setInvStatus('${inv.id}','paid')">Bezahlt</button>
+            <button class="btn-status btn-small ${inv.status==='overdue'?'active':''}" onclick="setInvStatus('${inv.id}','overdue')">Überfällig</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── CALENDAR ──
+function renderCalendar() {
+  const days = ['Mo','Di','Mi','Do','Fr','Sa'];
+  document.getElementById('cal-grid').innerHTML = days.map((d,i) => {
+    const da = appointments.filter(a => a.day===i);
+    return `<div class="cal-day">
+      <div class="cal-day-name" style="color:${i===0?'#F97316':'#7A8499'}">${d}</div>
+      ${da.length ? da.map(a=>`<div class="cal-item"><div class="cal-time">${a.time}</div><div class="cal-name">${a.name}</div><div class="cal-svc">${a.svc} · ${a.dur}min</div></div>`).join('') : '<div style="color:#4A5568;font-size:12px">Frei</div>'}
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
