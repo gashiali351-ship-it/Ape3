@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoparts Express</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0D0F14;font-family:'Segoe UI',sans-serif;color:#E8ECF4;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#161A22;}::-webkit-scrollbar-thumb{background:#2E3748;border-radius:3px;}
+input,select,button,textarea{font-family:inherit;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const C={
+  bg:"#0D0F14",surface:"#161A22",surfaceHigh:"#1E2330",
+  border:"#252C3B",accent:"#F97316",accentGlow:"rgba(249,115,22,0.13)",
+  blue:"#3B82F6",blueDim:"#1E3A5F",green:"#22C55E",greenDim:"#14532D",
+  red:"#EF4444",redDim:"#450A0A",yellow:"#EAB308",yellowDim:"#422006",
+  text:"#E8ECF4",textMuted:"#7A8499",textDim:"#4A5568",
+};
+
+const BRANDS={
+  "Volkswagen":["Golf","Polo","Passat","Tiguan","Touareg","ID.4","Caddy","T-Roc","Arteon"],
+  "BMW":["1er","2er","3er","4er","5er","7er","X1","X3","X5","X7","M3","M5","Z4"],
+  "Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","S-Klasse","GLA","GLC","GLE","GLS"],
+  "Audi":["A1","A3","A4","A5","A6","A7","A8","Q3","Q5","Q7","Q8","TT","R8","e-tron"],
+  "Ford":["Fiesta","Focus","Mondeo","Kuga","Puma","Mustang","Ranger","Transit"],
+  "Toyota":["Yaris","Corolla","Camry","RAV4","Hilux","Land Cruiser","Supra","C-HR","Prius"],
+  "Opel":["Corsa","Astra","Insignia","Mokka","Crossland","Grandland","Zafira"],
+  "Seat":["Ibiza","Leon","Arona","Ateca","Tarraco","Formentor"],
+  "Skoda":["Fabia","Octavia","Superb","Kodiaq","Karoq","Kamiq","Enyaq"],
+  "Renault":["Clio","Megane","Kadjar","Captur","Scenic","Zoe","Arkana"],
+  "Peugeot":["208","308","508","2008","3008","5008","Partner","Rifter"],
+  "Citroën":["C1","C3","C4","C5","Berlingo","SpaceTourer"],
+  "Fiat":["500","Panda","Tipo","Punto","Ducato","Doblo"],
+  "Honda":["Civic","Accord","CR-V","HR-V","Jazz","Type R"],
+  "Nissan":["Micra","Juke","Qashqai","X-Trail","Leaf","GT-R","Navara"],
+  "Hyundai":["i10","i20","i30","Tucson","Santa Fe","Kona","Ioniq 5"],
+  "Kia":["Picanto","Rio","Ceed","Sportage","Sorento","EV6","Stinger"],
+  "Mazda":["2","3","6","CX-3","CX-5","CX-30","MX-5"],
+  "Subaru":["Impreza","Forester","Outback","XV","WRX","BRZ"],
+  "Volvo":["V40","V60","V90","S60","S90","XC40","XC60","XC90"],
+  "Land Rover":["Defender","Discovery","Range Rover","Evoque","Velar"],
+  "Jeep":["Wrangler","Grand Cherokee","Cherokee","Compass","Renegade"],
+  "Porsche":["911","Cayenne","Macan","Panamera","Taycan","Boxster"],
+  "Tesla":["Model S","Model 3","Model X","Model Y","Cybertruck"],
+  "Chevrolet":["Spark","Cruze","Equinox","Tahoe","Silverado","Camaro","Corvette"],
+  "Lexus":["IS","ES","LS","UX","NX","RX","LX","LC"],
+  "Mitsubishi":["Eclipse Cross","Outlander","L200","ASX","Pajero"],
+  "Suzuki":["Swift","Vitara","Jimny","S-Cross","Baleno"],
+  "Dacia":["Sandero","Logan","Duster","Spring","Jogger"],
+  "BYD":["Atto 3","Han","Tang","Song Plus","Dolphin","Seal"],
+  "Ferrari":["Roma","SF90","F8 Tributo","296 GTB","812 Superfast"],
+  "Lamborghini":["Huracán","Urus","Revuelto"],
+  "Alfa Romeo":["Giulia","Stelvio","Tonale","Giulietta"],
+  "Bentley":["Continental GT","Flying Spur","Bentayga"],
+  "Rolls-Royce":["Ghost","Phantom","Cullinan"],
+  "Maserati":["Ghibli","Quattroporte","Levante","GranTurismo"],
+};
+
+const OBD={
+  "P0100":{s:"Luftmassenmesser",d:"Luftmassensensor Stromkreis Fehlfunktion",sev:"medium"},
+  "P0115":{s:"Kühlmitteltemperatur",d:"Kühlmitteltemperatursensor Kreisfehler",sev:"high"},
+  "P0120":{s:"Drosselklappe",d:"Drosselklappensensor A Kreisfehler",sev:"high"},
+  "P0128":{s:"Kühlung",d:"Kühlmitteltemperatur unter Thermostat-Sollwert",sev:"medium"},
+  "P0130":{s:"Lambda-Sonde",d:"O2-Sensor Stromkreis Bank 1 Sensor 1",sev:"medium"},
+  "P0171":{s:"Kraftstoffgemisch",d:"Kraftstoffsystem zu mager Bank 1",sev:"high"},
+  "P0172":{s:"Kraftstoffgemisch",d:"Kraftstoffsystem zu fett Bank 1",sev:"high"},
+  "P0200":{s:"Einspritzventil",d:"Einspritzventil Stromkreis Fehlfunktion",sev:"high"},
+  "P0300":{s:"Zündung",d:"Mehrfache Zylinder-Aussetzer erkannt",sev:"critical"},
+  "P0301":{s:"Zylinder 1",d:"Zündaussetzer Zylinder 1",sev:"critical"},
+  "P0302":{s:"Zylinder 2",d:"Zündaussetzer Zylinder 2",sev:"critical"},
+  "P0303":{s:"Zylinder 3",d:"Zündaussetzer Zylinder 3",sev:"critical"},
+  "P0304":{s:"Zylinder 4",d:"Zündaussetzer Zylinder 4",sev:"critical"},
+  "P0340":{s:"Nockenwelle",d:"Nockenwellenpositionssensor A Kreisfehler",sev:"critical"},
+  "P0400":{s:"AGR",d:"AGR Durchfluss Fehlfunktion",sev:"medium"},
+  "P0420":{s:"Katalysator",d:"Katalysator Effizienz unter Schwellenwert Bank 1",sev:"medium"},
+  "P0440":{s:"Tankentlüftung",d:"Kraftstoffdampf Rückgewinnungssystem Fehlfunktion",sev:"low"},
+  "P0455":{s:"Tankentlüftung",d:"Tankentlüftungssystem großes Leck",sev:"medium"},
+  "P0480":{s:"Kühlerlüfter",d:"Kühlerlüfter 1 Steuer Kreisfehler",sev:"high"},
+  "P0500":{s:"Geschwindigkeit",d:"Fahrzeuggeschwindigkeitssensor Fehlfunktion",sev:"medium"},
+  "P0505":{s:"Leerlauf",d:"Leerlaufregelventil Fehlfunktion",sev:"medium"},
+  "P0700":{s:"Getriebe",d:"Getriebesteuerungssystem Fehlfunktion",sev:"critical"},
+  "P0730":{s:"Getriebe",d:"Falsches Übersetzungsverhältnis",sev:"critical"},
+  "U0001":{s:"CAN-Bus",d:"Hochgeschwindigkeits CAN Bus Kommunikationsfehler",sev:"critical"},
+  "U0100":{s:"Kommunikation",d:"Verlust der Kommunikation mit ECM PCM",sev:"critical"},
+  "C0031":{s:"ABS",d:"Linkes Vorderrad Drehzahlsensor Kreisfehler",sev:"high"},
+  "C0035":{s:"ABS",d:"Linkes Hinterrad Drehzahlsensor Kreisfehler",sev:"high"},
+  "C0110":{s:"ABS-Pumpe",d:"ABS Pumpenmotor Kreisfehler",sev:"critical"},
+};
+
+const JOBS0=[
+  {id:1,customer:"Marcus Hoffmann",vehicle:"BMW 3er 2019",plate:"EN-MH 4521",service:"Inspektion + Ölwechsel",mechanic:"Kerim Y.",status:"in_progress",start:"09:00",est:"11:00",price:189},
+  {id:2,customer:"Sandra Koch",vehicle:"VW Golf 2021",plate:"M-SK 7834",service:"Bremsbeläge VA + HA",mechanic:"Mehmet A.",status:"waiting",start:"11:30",est:"13:30",price:320},
+  {id:3,customer:"Julia Berger",vehicle:"Audi A4 2022",plate:"M-JB 6612",service:"Fehlercode P0300 Diagnose",mechanic:"Kerim Y.",status:"done",start:"08:00",est:"09:30",price:95},
+];
+const PARTS0=[
+  {id:1,name:"Ölfilter Universal",sku:"OF-001",price:8.90,stock:47,min:10,brand:"Mann-Filter",fit:"VW, Audi, Seat"},
+  {id:2,name:"Bremsscheiben Set VA",sku:"BS-BMW3-VA",price:89.90,stock:3,min:5,brand:"Brembo",fit:"BMW 3er 4er"},
+  {id:3,name:"Zündkerzen Set NGK",sku:"ZK-NGK-B6S",price:24.50,stock:28,min:8,brand:"NGK",fit:"Universell 4-Zyl."},
+  {id:4,name:"Luftfilter VW Golf VII",sku:"LF-VWGOLF7",price:14.20,stock:12,min:5,brand:"Bosch",fit:"VW Golf VII 1.4 TSI"},
+  {id:5,name:"Stoßdämpfer HA MB C204",sku:"SD-MB-C204",price:145,stock:2,min:3,brand:"Bilstein",fit:"Mercedes C W204"},
+  {id:6,name:"Keilrippenriemen",sku:"KR-BMW-N47",price:32.80,stock:8,min:4,brand:"ContiTech",fit:"BMW N47 Diesel"},
+  {id:7,name:"Kühlmittel Konzentrat 1L",sku:"KM-1L",price:12.50,stock:34,min:10,brand:"Febi",fit:"Universell"},
+  {id:8,name:"Getriebeöl ATF 1L",sku:"GO-ATF",price:18.90,stock:6,min:5,brand:"Liqui-Moly",fit:"Automatikgetriebe"},
+];
+const CUSTS0=[
+  {id:1,name:"Marcus Hoffmann",phone:"+49 89 4521 8734",email:"m.hoffmann@email.de",vehicles:["BMW 3er (2019) – EN-MH 4521"]},
+  {id:2,name:"Sandra Koch",phone:"+49 89 7834 2211",email:"s.koch@web.de",vehicles:["VW Golf (2021) – M-SK 7834","Opel Corsa (2018)"]},
+  {id:3,name:"Dimitri Papadopoulos",phone:"+49 89 3312 9900",email:"d.papa@gmail.com",vehicles:["Mercedes C-Klasse (2020)"]},
+  {id:4,name:"Julia Berger",phone:"+49 89 6612 4400",email:"j.berger@t-online.de",vehicles:["Audi A4 (2022) – M-JB 6612"]},
+];
+const INV0=[
+  {id:"RE-2025-041",customer:"Marcus Hoffmann",service:"Inspektion + Ölwechsel",date:"09.06.2025",net:159,tax:30.21,total:189.21,status:"paid"},
+  {id:"RE-2025-040",customer:"Sandra Koch",service:"Bremsbeläge VA + HA",date:"08.06.2025",net:268.91,tax:51.09,total:320,status:"open"},
+  {id:"RE-2025-039",customer:"Julia Berger",service:"Diagnose Fehlercode",date:"07.06.2025",net:79.83,tax:15.17,total:95,status:"paid"},
+  {id:"RE-2025-038",customer:"Dimitri Papadopoulos",service:"Stoßdämpfer HA",date:"05.06.2025",net:453.78,tax:86.22,total:540,status:"overdue"},
+];
+
+// ── HELPERS ──
+function Badge({t,c}){
+  const m={critical:{bg:"#450A0A",fc:"#EF4444"},high:{bg:"#431407",fc:"#FB923C"},medium:{bg:"#422006",fc:"#EAB308"},low:{bg:"#14532D",fc:"#22C55E"},in_progress:{bg:"#1E3A5F",fc:"#3B82F6"},waiting:{bg:"#422006",fc:"#EAB308"},done:{bg:"#14532D",fc:"#22C55E"},paid:{bg:"#14532D",fc:"#22C55E"},open:{bg:"#1E3A5F",fc:"#3B82F6"},overdue:{bg:"#450A0A",fc:"#EF4444"}};
+  const s=m[c]||m[t]||{bg:C.surfaceHigh,fc:C.textMuted};
+  return <span style={{background:s.bg,color:s.fc,borderRadius:6,padding:"2px 9px",fontSize:11,fontWeight:700}}>{t}</span>;
+}
+function Card({children,style={}}){return <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:18,...style}}>{children}</div>;}
+function Inp({value,onChange,placeholder,type="text",style={}}){
+  return <input type={type} value={value} onChange={onChange} placeholder={placeholder}
+    style={{background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,width:"100%",...style}}/>;
+}
+function Btn({children,onClick,variant="muted",style={}}){
+  const bg=variant==="accent"?C.accent:variant==="danger"?"#7F1D1D":C.surfaceHigh;
+  const fc=variant==="accent"||variant==="danger"?"#fff":C.textMuted;
+  return <button onClick={onClick} style={{background:bg,color:fc,border:"none",borderRadius:8,padding:"9px 16px",cursor:"pointer",fontWeight:700,fontSize:13,...style}}>{children}</button>;
+}
+function Stat({label,value,sub,color}){
+  return <Card style={{flex:1,minWidth:130}}>
+    <div style={{color:C.textMuted,fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:5}}>{label.toUpperCase()}</div>
+    <div style={{color:color||C.text,fontSize:26,fontWeight:800,lineHeight:1}}>{value}</div>
+    {sub&&<div style={{color:C.textMuted,fontSize:12,marginTop:4}}>{sub}</div>}
+  </Card>;
+}
+
+// ── AI ──
+async function callAI(system,user){
+  const key=localStorage.getItem("ape_apikey")||"";
+  if(!key) return "⚠ Kein API-Key gespeichert. Bitte unten links in der Sidebar den Key eintragen.";
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":key,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1024,system,messages:[{role:"user",content:user}]})
+    });
+    const d=await r.json();
+    if(d.error) return "⚠ API Fehler: "+d.error.message;
+    return d.content?.map(b=>b.text||"").join("")||"Keine Antwort.";
+  }catch(e){
+    return "⚠ Verbindungsfehler: "+e.message;
+  }
+}
+
+// ── VIEWS ──
+function Dashboard({jobs,parts}){
+  const low=parts.filter(p=>p.stock<p.min);
+  const sl={in_progress:"In Arbeit",waiting:"Wartet",done:"Fertig"};
+  return <div style={{display:"flex",flexDirection:"column",gap:20}}>
+    <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>📊 Dashboard</h2>
+    <div style={{color:C.textMuted,fontSize:13,marginTop:2}}>{new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})}</div></div>
+    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+      <Stat label="Umsatz Monat" value="€12.840" sub="+8% zum Vormonat" color={C.green}/>
+      <Stat label="Offene Aufträge" value={jobs.filter(j=>j.status!=="done").length} sub="aktive Jobs" color={C.blue}/>
+      <Stat label="Lagerwarnungen" value={low.length} sub="unter Mindestbestand" color={low.length>0?C.red:C.green}/>
+      <Stat label="Kunden gesamt" value="138" sub="12 neue diesen Monat"/>
+    </div>
+    <Card>
+      <div style={{color:C.text,fontWeight:700,marginBottom:14,fontSize:15}}>🔧 Aktive Aufträge</div>
+      {jobs.map(j=><div key={j.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}`,flexWrap:"wrap"}}>
+        <Badge t={sl[j.status]} c={j.status}/>
+        <div style={{flex:1}}><div style={{color:C.text,fontWeight:600,fontSize:14}}>{j.customer} · <span style={{color:C.textMuted,fontWeight:400}}>{j.vehicle}</span></div>
+        <div style={{color:C.textMuted,fontSize:12}}>{j.service} · 👤 {j.mechanic}</div></div>
+        <span style={{color:C.accent,fontWeight:700}}>€{j.price}</span>
+        <span style={{color:C.textMuted,fontSize:12}}>{j.start}–{j.est}</span>
+      </div>)}
+    </Card>
+    {low.length>0&&<Card style={{borderColor:C.red}}>
+      <div style={{color:C.red,fontWeight:700,marginBottom:10}}>⚠ Lagerwarnung</div>
+      {low.map(p=><div key={p.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.border}`,color:C.text,fontSize:13}}>
+        <span>{p.name}</span><span style={{color:C.red,fontWeight:700}}>Bestand: {p.stock} | Min: {p.min}</span>
+      </div>)}
+    </Card>}
+  </div>;
+}
+
+function AIView(){
+  const [mode,setMode]=React.useState("obd");
+  const [msgs,setMsgs]=React.useState([]);
+  const [inp,setInp]=React.useState("");
+  const [veh,setVeh]=React.useState({brand:"",model:"",year:""});
+  const [loading,setLoading]=React.useState(false);
+  const bot=React.useRef();
+  React.useEffect(()=>bot.current?.scrollIntoView({behavior:"smooth"}),[msgs]);
+  const brands=Object.keys(BRANDS).sort();
+  const models=veh.brand?BRANDS[veh.brand]:[];
+
+  async function send(){
+    if(!inp.trim()||loading)return;
+    const txt=inp.trim();setInp("");setLoading(true);
+    setMsgs(p=>[...p,{r:"user",t:txt}]);
+    const v=veh.brand?`Fahrzeug: ${veh.brand} ${veh.model} ${veh.year}
+`:"";
+    let sys="",prompt="";
+    if(mode==="obd"){
+      const code=txt.toUpperCase().match(/[PBCU][0-9]{4}/)?.[0];
+      const loc=code?OBD[code]:null;
+      sys="Du bist ein erfahrener Kfz-Mechatroniker. Antworte auf Deutsch, präzise und strukturiert. Gliedere: 1) Bedeutung 2) Wo liegt das Problem 3) Was prüfen/tauschen 4) Aufwand in Stunden und Euro (Schätzung).";
+      prompt=loc?`${v}Fehlercode: ${code}
+System: ${loc.s}
+Beschreibung: ${loc.d}
+Schweregrad: ${loc.sev}
+
+Erkläre genau was das bedeutet, wo das Problem liegt und was zu tun ist.`:`${v}Fehlercode oder Symptom: ${txt}
+Analysiere und gib eine detaillierte Diagnose.`;
+    }else if(mode==="parts"){
+      sys="Du bist ein Kfz-Teile-Experte. Antworte auf Deutsch. Nenne konkrete Teile, Marken (Brembo/Bosch/NGK/Mann/Bilstein), Preisrahmen und Montagehinweise.";
+      prompt=`${v}Gesuchtes Teil / Problem: ${txt}
+Welche Teile werden benötigt, welche Marken, Preisrahmen, Besonderheiten?`;
+    }else{
+      sys="Du bist Senior Kfz-Mechatroniker mit 20 Jahren Erfahrung. Antworte auf Deutsch, Schritt-für-Schritt, mit konkreten Prüfschritten.";
+      prompt=`${v}Problem / Symptom: ${txt}
+Systematische Diagnose-Anleitung mit Prüfschritten, geordnet nach Wahrscheinlichkeit.`;
+    }
+    const res=await callAI(sys,prompt);
+    setMsgs(p=>[...p,{r:"ai",t:res}]);
+    setLoading(false);
+  }
+
+  return <div style={{display:"flex",flexDirection:"column",gap:14}}>
+    <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>🤖 KI-Assistent</h2>
+    <div style={{color:C.textMuted,fontSize:13,marginTop:2}}>OBD-Codes · Teilesuche · Diagnose · Alle Fahrzeuge weltweit</div></div>
+    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+      {[["obd","🔴 OBD Fehlercode"],["parts","🔩 Teilesuche"],["diagnose","🔬 Diagnose-Hilfe"]].map(([id,label])=>
+        <button key={id} onClick={()=>setMode(id)} style={{background:mode===id?C.accent:C.surfaceHigh,color:mode===id?"#fff":C.textMuted,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontWeight:700,fontSize:13}}>{label}</button>
+      )}
+    </div>
+    <Card style={{padding:14}}>
+      <div style={{color:C.textMuted,fontSize:11,fontWeight:700,marginBottom:8,letterSpacing:1}}>FAHRZEUG (OPTIONAL)</div>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+        <select value={veh.brand} onChange={e=>setVeh({brand:e.target.value,model:"",year:""})}
+          style={{flex:1,minWidth:120,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",fontSize:13}}>
+          <option value="">Alle Marken</option>{brands.map(b=><option key={b}>{b}</option>)}
+        </select>
+        <select value={veh.model} onChange={e=>setVeh(v=>({...v,model:e.target.value}))}
+          style={{flex:1,minWidth:120,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",fontSize:13}}>
+          <option value="">Alle Modelle</option>{models.map(m=><option key={m}>{m}</option>)}
+        </select>
+        <input value={veh.year} onChange={e=>setVeh(v=>({...v,year:e.target.value}))} placeholder="Bj. z.B. 2020"
+          style={{width:105,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",fontSize:13}}/>
+      </div>
+    </Card>
+    <Card style={{padding:0,display:"flex",flexDirection:"column"}}>
+      <div style={{overflowY:"auto",maxHeight:380,padding:14,display:"flex",flexDirection:"column",gap:10,minHeight:200}}>
+        {!msgs.length&&<div style={{color:C.textMuted,textAlign:"center",marginTop:60,fontSize:14}}>
+          {mode==="obd"&&"Fehlercode eingeben z.B. P0300
+oder Symptom beschreiben..."}
+          {mode==="parts"&&"Fahrzeug + Problem beschreiben
+welches Teil wird gesucht..."}
+          {mode==="diagnose"&&"Symptom genau beschreiben
+KI gibt Schritt-für-Schritt Diagnose..."}
+        </div>}
+        {msgs.map((m,i)=><div key={i} style={{alignSelf:m.r==="user"?"flex-end":"flex-start",background:m.r==="user"?C.accent:C.surfaceHigh,color:C.text,borderRadius:12,padding:"10px 14px",maxWidth:"90%",fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}>
+          {m.r==="ai"&&<div style={{color:C.accent,fontWeight:700,fontSize:11,marginBottom:4}}>🤖 KI-ASSISTENT</div>}
+          {m.t}
+        </div>)}
+        {loading&&<div style={{alignSelf:"flex-start",background:C.surfaceHigh,borderRadius:12,padding:"10px 14px",color:C.textMuted,fontSize:13}}>⏳ KI analysiert...</div>}
+        <div ref={bot}/>
+      </div>
+      <div style={{display:"flex",gap:8,padding:12,borderTop:`1px solid ${C.border}`}}>
+        <input value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&send()}
+          placeholder={mode==="obd"?"Fehlercode z.B. P0300 oder Symptom...":mode==="parts"?"Teil oder Problem beschreiben...":"Symptom genau beschreiben..."}
+          style={{flex:1,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:13}}/>
+        <button onClick={send} disabled={loading||!inp.trim()} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"10px 20px",cursor:"pointer",fontWeight:700,fontSize:13,opacity:loading?0.5:1}}>▶ Senden</button>
+      </div>
+    </Card>
+    <Card style={{padding:14}}>
+      <div style={{color:C.textMuted,fontSize:11,fontWeight:700,marginBottom:8,letterSpacing:1}}>⚡ HÄUFIGE FEHLERCODES</div>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        {["P0300","P0171","P0420","P0115","U0001","P0340","P0700","C0031","P0172","P0128"].map(c=>
+          <button key={c} onClick={()=>{setInp(c);setMode("obd");}} title={OBD[c]?.d||c}
+            style={{background:C.surfaceHigh,color:C.text,border:`1px solid ${C.border}`,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontSize:12,fontWeight:600}}>{c}</button>
+        )}
+      </div>
+    </Card>
+  </div>;
+}
+
+function Workshop({jobs,setJobs}){
+  const [showNew,setShowNew]=React.useState(false);
+  const [nj,setNj]=React.useState({customer:"",vehicle:"",plate:"",service:"",mechanic:"",start:"",est:"",price:""});
+  const sl={in_progress:"In Arbeit",waiting:"Wartet",done:"Fertig"};
+  function add(){if(!nj.customer)return;setJobs(p=>[...p,{...nj,id:Date.now(),status:"waiting",price:+nj.price||0}]);setNj({customer:"",vehicle:"",plate:"",service:"",mechanic:"",start:"",est:"",price:""});setShowNew(false);}
+  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>🔧 Werkstatt & Aufträge</h2>
+      <div style={{color:C.textMuted,fontSize:13}}>{jobs.filter(j=>j.status!=="done").length} aktive Aufträge</div></div>
+      <Btn variant="accent" onClick={()=>setShowNew(!showNew)}>+ Neuer Auftrag</Btn>
+    </div>
+    {showNew&&<Card style={{borderColor:C.accent}}>
+      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neuen Auftrag erstellen</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        {[["customer","Kunde *"],["vehicle","Fahrzeug *"],["plate","Kennzeichen"],["service","Leistung"],["mechanic","Mechaniker"],["start","Startzeit"],["est","Fertig ca."],["price","Preis (€)"]].map(([k,l])=>
+          <Inp key={k} value={nj[k]} onChange={e=>setNj(p=>({...p,[k]:e.target.value}))} placeholder={l}/>
+        )}
+      </div>
+      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Erstellen</Btn><Btn onClick={()=>setShowNew(false)}>Abbrechen</Btn></div>
+    </Card>}
+    {jobs.map(j=><Card key={j.id}>
+      <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,marginBottom:10}}>
+        <div><div style={{color:C.text,fontWeight:700,fontSize:15}}>{j.customer}</div>
+        <div style={{color:C.textMuted,fontSize:12}}>🚗 {j.vehicle} · {j.plate}</div></div>
+        <div style={{display:"flex",alignItems:"center",gap:8}}><Badge t={sl[j.status]} c={j.status}/><span style={{color:C.accent,fontWeight:800,fontSize:16}}>€{j.price}</span></div>
+      </div>
+      <div style={{color:C.text,fontSize:13,marginBottom:6}}>🔩 {j.service}</div>
+      <div style={{color:C.textMuted,fontSize:12,marginBottom:12}}>👤 {j.mechanic} · ⏰ {j.start}–{j.est}</div>
+      <div style={{display:"flex",gap:6}}>
+        {["waiting","in_progress","done"].map(s=><button key={s} onClick={()=>setJobs(p=>p.map(x=>x.id===j.id?{...x,status:s}:x))} style={{background:j.status===s?C.accent:C.surfaceHigh,color:j.status===s?"#fff":C.textMuted,border:"none",borderRadius:6,padding:"5px 12px",cursor:"pointer",fontSize:12,fontWeight:600}}>{sl[s]}</button>)}
+      </div>
+    </Card>)}
+  </div>;
+}
+
+function Parts({parts,setParts}){
+  const [search,setSearch]=React.useState("");
+  const [showAdd,setShowAdd]=React.useState(false);
+  const [np,setNp]=React.useState({name:"",sku:"",price:"",stock:"",min:"",brand:"",fit:""});
+  const f=parts.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.sku.toLowerCase().includes(search.toLowerCase())||p.brand.toLowerCase().includes(search.toLowerCase()));
+  function add(){if(!np.name||!np.sku)return;setParts(p=>[...p,{...np,id:Date.now(),price:+np.price||0,stock:+np.stock||0,min:+np.min||0}]);setNp({name:"",sku:"",price:"",stock:"",min:"",brand:"",fit:""});setShowAdd(false);}
+  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>📦 Teile & Lager</h2>
+      <div style={{color:C.textMuted,fontSize:13}}>{parts.length} Artikel</div></div>
+      <Btn variant="accent" onClick={()=>setShowAdd(!showAdd)}>+ Neues Teil</Btn>
+    </div>
+    {showAdd&&<Card style={{borderColor:C.accent}}>
+      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neues Teil anlegen</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        {[["name","Bezeichnung *"],["sku","SKU *"],["brand","Marke"],["fit","Kompatibel mit"],["price","Preis (€)"],["stock","Bestand"],["min","Mindestbestand"]].map(([k,l])=>
+          <Inp key={k} value={np[k]} onChange={e=>setNp(p=>({...p,[k]:e.target.value}))} placeholder={l}/>
+        )}
+      </div>
+      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Speichern</Btn><Btn onClick={()=>setShowAdd(false)}>Abbrechen</Btn></div>
+    </Card>}
+    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Suchen (Name, SKU, Marke)..."
+      style={{background:C.surface,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:14,width:"100%"}}/>
+    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      {f.map(p=><Card key={p.id} style={{padding:14}}>
+        <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+          <div><div style={{color:C.text,fontWeight:700,fontSize:14}}>{p.name}</div>
+          <div style={{color:C.textMuted,fontSize:12,marginTop:2}}>SKU: {p.sku} · {p.brand} · {p.fit}</div></div>
+          <div style={{textAlign:"right"}}>
+            <div style={{color:C.accent,fontWeight:800,fontSize:16}}>€{Number(p.price).toFixed(2)}</div>
+            <div style={{color:p.stock<p.min?C.red:C.green,fontSize:12,fontWeight:700}}>{p.stock<p.min?"⚠ ":"✓ "}Bestand: {p.stock}</div>
+          </div>
+        </div>
+      </Card>)}
+      {!f.length&&<div style={{color:C.textMuted,textAlign:"center",padding:30}}>Keine Teile gefunden.</div>}
+    </div>
+  </div>;
+}
+
+function Customers(){
+  const [custs,setCusts]=React.useState(CUSTS0);
+  const [search,setSearch]=React.useState("");
+  const [sel,setSel]=React.useState(null);
+  const [showNew,setShowNew]=React.useState(false);
+  const [nc,setNc]=React.useState({name:"",phone:"",email:"",vehicle:""});
+  const f=custs.filter(c=>c.name.toLowerCase().includes(search.toLowerCase())||c.email?.includes(search));
+  function add(){if(!nc.name)return;setCusts(p=>[...p,{...nc,id:Date.now(),vehicles:nc.vehicle?[nc.vehicle]:[]}]);setNc({name:"",phone:"",email:"",vehicle:""});setShowNew(false);}
+  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>👥 Kunden & Fahrzeuge</h2>
+      <div style={{color:C.textMuted,fontSize:13}}>{custs.length} Kunden</div></div>
+      <Btn variant="accent" onClick={()=>setShowNew(!showNew)}>+ Neuer Kunde</Btn>
+    </div>
+    {showNew&&<Card style={{borderColor:C.accent}}>
+      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neuen Kunden anlegen</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        {[["name","Name *"],["phone","Telefon"],["email","E-Mail"],["vehicle","Fahrzeug"]].map(([k,l])=>
+          <Inp key={k} value={nc[k]} onChange={e=>setNc(p=>({...p,[k]:e.target.value}))} placeholder={l}/>
+        )}
+      </div>
+      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Speichern</Btn><Btn onClick={()=>setShowNew(false)}>Abbrechen</Btn></div>
+    </Card>}
+    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Kunden suchen..."
+      style={{background:C.surface,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:14,width:"100%"}}/>
+    {f.map(c=><Card key={c.id} style={{cursor:"pointer",borderColor:sel===c.id?C.accent:C.border}} onClick={()=>setSel(sel===c.id?null:c.id)}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div><div style={{color:C.text,fontWeight:700}}>{c.name}</div>
+        <div style={{color:C.textMuted,fontSize:12,marginTop:2}}>📞 {c.phone} · ✉ {c.email}</div></div>
+        <div style={{color:C.textMuted,fontSize:12}}>🚗 {c.vehicles.length}</div>
+      </div>
+      {sel===c.id&&<div style={{marginTop:10,borderTop:`1px solid ${C.border}`,paddingTop:10}}>
+        {c.vehicles.map((v,i)=><div key={i} style={{color:C.text,fontSize:13,padding:"4px 0",borderBottom:`1px solid ${C.border}`}}>🚗 {v}</div>)}
+        {!c.vehicles.length&&<div style={{color:C.textMuted,fontSize:13}}>Kein Fahrzeug</div>}
+      </div>}
+    </Card>)}
+  </div>;
+}
+
+function Invoices(){
+  const [invs,setInvs]=React.useState(INV0);
+  const [showNew,setShowNew]=React.useState(false);
+  const [ni,setNi]=React.useState({customer:"",service:"",net:"",status:"open"});
+  const sl={paid:"Bezahlt",open:"Offen",overdue:"Überfällig"};
+  function add(){
+    if(!ni.customer)return;
+    const net=+ni.net||0,tax=+(net*0.19).toFixed(2),total=+(net+tax).toFixed(2);
+    setInvs(p=>[{id:"RE-2025-"+String(p.length+42).padStart(3,"0"),customer:ni.customer,service:ni.service,date:new Date().toLocaleDateString("de-DE"),net,tax,total,status:ni.status},...p]);
+    setNi({customer:"",service:"",net:"",status:"open"});setShowNew(false);
+  }
+  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>💶 Rechnungen</h2>
+      <div style={{color:C.textMuted,fontSize:13}}>{invs.length} Rechnungen</div></div>
+      <Btn variant="accent" onClick={()=>setShowNew(!showNew)}>+ Neue Rechnung</Btn>
+    </div>
+    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+      <Stat label="Offen" value={"€"+invs.filter(i=>i.status==="open").reduce((s,i)=>s+i.total,0).toFixed(0)} color={C.blue}/>
+      <Stat label="Überfällig" value={"€"+invs.filter(i=>i.status==="overdue").reduce((s,i)=>s+i.total,0).toFixed(0)} color={C.red}/>
+      <Stat label="Bezahlt" value={"€"+invs.filter(i=>i.status==="paid").reduce((s,i)=>s+i.total,0).toFixed(0)} color={C.green}/>
+    </div>
+    {showNew&&<Card style={{borderColor:C.accent}}>
+      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neue Rechnung</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        <Inp value={ni.customer} onChange={e=>setNi(p=>({...p,customer:e.target.value}))} placeholder="Kunde *"/>
+        <Inp value={ni.service} onChange={e=>setNi(p=>({...p,service:e.target.value}))} placeholder="Leistung"/>
+        <Inp value={ni.net} onChange={e=>setNi(p=>({...p,net:e.target.value}))} placeholder="Nettobetrag (€)" type="number"/>
+        <select value={ni.status} onChange={e=>setNi(p=>({...p,status:e.target.value}))}
+          style={{background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",fontSize:13}}>
+          <option value="open">Offen</option><option value="paid">Bezahlt</option><option value="overdue">Überfällig</option>
+        </select>
+      </div>
+      {ni.net&&<div style={{color:C.textMuted,fontSize:12,marginTop:6}}>MwSt 19%: €{(+ni.net*0.19).toFixed(2)} · Brutto: €{(+ni.net*1.19).toFixed(2)}</div>}
+      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Erstellen</Btn><Btn onClick={()=>setShowNew(false)}>Abbrechen</Btn></div>
+    </Card>}
+    {invs.map(inv=><Card key={inv.id}>
+      <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+        <div>
+          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4,flexWrap:"wrap"}}>
+            <span style={{color:C.accent,fontWeight:700,fontSize:13}}>{inv.id}</span>
+            <Badge t={sl[inv.status]} c={inv.status}/>
+          </div>
+          <div style={{color:C.text,fontWeight:600}}>{inv.customer}</div>
+          <div style={{color:C.textMuted,fontSize:12,marginTop:2}}>{inv.service} · 📅 {inv.date}</div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{color:C.text,fontWeight:800,fontSize:18}}>€{inv.total.toFixed(2)}</div>
+          <div style={{color:C.textMuted,fontSize:11}}>Netto: €{inv.net.toFixed(2)} · MwSt: €{inv.tax.toFixed(2)}</div>
+          <div style={{display:"flex",gap:4,marginTop:6,justifyContent:"flex-end"}}>
+            {["open","paid","overdue"].map(s=><button key={s} onClick={()=>setInvs(p=>p.map(x=>x.id===inv.id?{...x,status:s}:x))} style={{background:inv.status===s?C.accent:C.surfaceHigh,color:inv.status===s?"#fff":C.textMuted,border:"none",borderRadius:5,padding:"3px 8px",cursor:"pointer",fontSize:11,fontWeight:600}}>{sl[s]}</button>)}
+          </div>
+        </div>
+      </div>
+    </Card>)}
+  </div>;
+}
+
+function Appointments(){
+  const days=["Mo","Di","Mi","Do","Fr","Sa"];
+  const appts=[
+    {day:0,time:"08:00",name:"Marcus Hoffmann",svc:"Inspektion",dur:120},
+    {day:0,time:"11:00",name:"Sandra Koch",svc:"Bremsen",dur:120},
+    {day:1,time:"09:00",name:"Julia Berger",svc:"Diagnose",dur:90},
+    {day:2,time:"10:30",name:"Dimitri P.",svc:"Stoßdämpfer",dur:180},
+    {day:3,time:"14:00",name:"Neukunde",svc:"Reifenwechsel",dur:60},
+    {day:4,time:"08:30",name:"Sandra Koch",svc:"Abholung",dur:30},
+  ];
+  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>📅 Terminkalender</h2>
+    <div style={{color:C.textMuted,fontSize:13}}>{new Date().toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</div></div>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+      {days.map((d,i)=>{const da=appts.filter(a=>a.day===i);return <Card key={i} style={{padding:12}}>
+        <div style={{color:i===0?C.accent:C.textMuted,fontWeight:700,fontSize:13,marginBottom:8}}>{d}</div>
+        {!da.length?<div style={{color:C.textDim,fontSize:12}}>Frei</div>:da.map((a,j)=><div key={j} style={{background:C.bg,borderLeft:`3px solid ${C.accent}`,borderRadius:"0 6px 6px 0",padding:"6px 8px",marginBottom:6}}>
+          <div style={{color:C.accent,fontSize:11,fontWeight:700}}>{a.time}</div>
+          <div style={{color:C.text,fontSize:12,fontWeight:600}}>{a.name}</div>
+          <div style={{color:C.textMuted,fontSize:11}}>{a.svc} · {a.dur}min</div>
+        </div>)}
+      </Card>;})}
+    </div>
+    <Btn style={{alignSelf:"flex-start"}}>+ Neuen Termin</Btn>
+  </div>;
+}
+
+// ── API KEY MANAGER ──
+function KeyManager(){
+  const [key,setKey]=React.useState(localStorage.getItem("ape_apikey")||"");
+  const [saved,setSaved]=React.useState(!!localStorage.getItem("ape_apikey"));
+  function save(){localStorage.setItem("ape_apikey",key);setSaved(true);setTimeout(()=>setSaved(false),2000);}
+  return <div style={{padding:"10px 12px",borderTop:`1px solid ${C.border}`}}>
+    <div style={{color:C.textMuted,fontSize:10,fontWeight:700,marginBottom:5,letterSpacing:1}}>ANTHROPIC API-KEY</div>
+    <input type="password" value={key} onChange={e=>{setKey(e.target.value);setSaved(false);}}
+      placeholder="sk-ant-..."
+      style={{width:"100%",background:C.bg,color:C.text,border:`1px solid ${saved?C.green:C.border}`,borderRadius:6,padding:"6px 8px",fontSize:11}}/>
+    <button onClick={save} style={{marginTop:5,width:"100%",background:saved?C.green:C.accent,color:"#fff",border:"none",borderRadius:6,padding:"5px",cursor:"pointer",fontSize:11,fontWeight:700}}>
+      {saved?"✓ Gespeichert!":"Speichern"}
+    </button>
+    {saved&&<div style={{color:C.green,fontSize:10,marginTop:3,textAlign:"center"}}>KI ist bereit ✓</div>}
+  </div>;
+}
+
+// ── APP ──
+const NAV=[
+  {id:"dashboard",e:"📊",l:"Dashboard"},
+  {id:"ai",e:"🤖",l:"KI-Assistent"},
+  {id:"workshop",e:"🔧",l:"Werkstatt"},
+  {id:"parts",e:"📦",l:"Teile & Lager"},
+  {id:"customers",e:"👥",l:"Kunden"},
+  {id:"invoices",e:"💶",l:"Rechnungen"},
+  {id:"appointments",e:"📅",l:"Termine"},
+];
+
+function App(){
+  const [view,setView]=React.useState("dashboard");
+  const [jobs,setJobs]=React.useState(JOBS0);
+  const [parts,setParts]=React.useState(PARTS0);
+
+  function V(){
+    switch(view){
+      case"dashboard":return <Dashboard jobs={jobs} parts={parts}/>;
+      case"ai":return <AIView/>;
+      case"workshop":return <Workshop jobs={jobs} setJobs={setJobs}/>;
+      case"parts":return <Parts parts={parts} setParts={setParts}/>;
+      case"customers":return <Customers/>;
+      case"invoices":return <Invoices/>;
+      case"appointments":return <Appointments/>;
+      default:return <Dashboard jobs={jobs} parts={parts}/>;
+    }
+  }
+
+  return <div style={{display:"flex",minHeight:"100vh",background:C.bg}}>
+    <div style={{width:205,background:C.surface,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,bottom:0,zIndex:100}}>
+      <div style={{padding:"18px 16px 14px",borderBottom:`1px solid ${C.border}`}}>
+        <div style={{color:C.accent,fontWeight:900,fontSize:16}}>⚙ AUTOPARTS</div>
+        <div style={{color:C.textMuted,fontSize:10,fontWeight:700,letterSpacing:2,marginTop:1}}>EXPRESS · KI-SYSTEM</div>
+      </div>
+      <div style={{flex:1,paddingTop:6,overflowY:"auto"}}>
+        {NAV.map(v=><button key={v.id} onClick={()=>setView(v.id)} style={{
+          display:"flex",alignItems:"center",gap:10,width:"100%",
+          background:view===v.id?C.accentGlow:"transparent",
+          borderLeft:`3px solid ${view===v.id?C.accent:"transparent"}`,
+          color:view===v.id?C.text:C.textMuted,
+          border:"none",borderLeftStyle:"solid",
+          padding:"11px 16px",cursor:"pointer",fontSize:13,fontWeight:view===v.id?700:400,textAlign:"left",
+        }}>
+          <span style={{fontSize:15}}>{v.e}</span>{v.l}
+          {v.id==="ai"&&<span style={{background:C.accent,color:"#fff",fontSize:9,fontWeight:900,borderRadius:4,padding:"1px 5px",marginLeft:"auto"}}>KI</span>}
+        </button>)}
+      </div>
+      <KeyManager/>
+      <div style={{padding:"8px 16px",borderTop:`1px solid ${C.border}`,color:C.textDim,fontSize:10}}>Autoparts Express v2.0</div>
+    </div>
+    <div style={{marginLeft:205,flex:1,padding:24,overflowX:"hidden"}}>
+      <V/>
+    </div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
