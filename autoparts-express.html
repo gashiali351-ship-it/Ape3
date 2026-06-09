@@ -2,50 +2,340 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Autoparts Express</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0D0F14;font-family:'Segoe UI',sans-serif;color:#E8ECF4;}
+body{background:#0D0F14;color:#E8ECF4;font-family:'Segoe UI',system-ui,sans-serif;display:flex;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button,input,select,textarea{font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:2px solid #F97316;outline-offset:-1px;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#161A22;}::-webkit-scrollbar-thumb{background:#2E3748;border-radius:3px;}
-input,select,button,textarea{font-family:inherit;}
+
+/* SIDEBAR */
+#sidebar{width:200px;background:#161A22;border-right:1px solid #252C3B;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s;}
+.logo{padding:18px 16px 14px;border-bottom:1px solid #252C3B;}
+.logo-title{color:#F97316;font-weight:900;font-size:16px;}
+.logo-sub{color:#7A8499;font-size:10px;font-weight:700;letter-spacing:2px;margin-top:2px;}
+.nav{flex:1;overflow-y:auto;padding-top:6px;}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:none;border-left:3px solid transparent;color:#7A8499;padding:11px 14px;cursor:pointer;font-size:13px;font-weight:400;text-align:left;transition:all .15s;}
+.nav-btn:hover{color:#E8ECF4;background:rgba(249,115,22,0.07);}
+.nav-btn.active{color:#E8ECF4;background:rgba(249,115,22,0.13);border-left-color:#F97316;font-weight:700;}
+.nav-btn .badge{background:#F97316;color:#fff;font-size:9px;font-weight:900;border-radius:4px;padding:1px 5px;margin-left:auto;}
+.key-section{padding:10px 12px;border-top:1px solid #252C3B;}
+.key-label{color:#7A8499;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
+.key-input{width:100%;background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:6px;padding:7px 8px;font-size:11px;}
+.key-save{margin-top:5px;width:100%;background:#F97316;color:#fff;border:none;border-radius:6px;padding:6px;cursor:pointer;font-size:11px;font-weight:700;}
+.key-save.ok{background:#22C55E;}
+.version{padding:8px 14px;border-top:1px solid #252C3B;color:#4A5568;font-size:10px;}
+
+/* MAIN */
+#main{margin-left:200px;flex:1;padding:22px;overflow-x:hidden;}
+.view{display:none;flex-direction:column;gap:18px;}
+.view.active{display:flex;}
+
+/* COMPONENTS */
+.page-title{font-size:22px;font-weight:800;color:#E8ECF4;}
+.page-sub{font-size:13px;color:#7A8499;margin-top:3px;}
+.stats{display:flex;gap:12px;flex-wrap:wrap;}
+.stat{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:16px;flex:1;min-width:130px;}
+.stat-label{color:#7A8499;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
+.stat-value{font-size:26px;font-weight:800;line-height:1;}
+.stat-sub{color:#7A8499;font-size:12px;margin-top:4px;}
+.card{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:18px;}
+.card.accent-border{border-color:#F97316;}
+.card.red-border{border-color:#EF4444;}
+.section-title{font-size:15px;font-weight:700;color:#E8ECF4;margin-bottom:14px;}
+.badge{display:inline-block;border-radius:6px;padding:2px 9px;font-size:11px;font-weight:700;}
+.badge.in_progress,.badge.offen{background:#1E3A5F;color:#3B82F6;}
+.badge.waiting,.badge.medium{background:#422006;color:#EAB308;}
+.badge.done,.badge.paid,.badge.bezahlt,.badge.low{background:#14532D;color:#22C55E;}
+.badge.critical,.badge.overdue,.badge.ueberfaellig{background:#450A0A;color:#EF4444;}
+.badge.high{background:#431407;color:#FB923C;}
+.job-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #252C3B;flex-wrap:wrap;}
+.job-row:last-child{border-bottom:none;}
+.job-name{font-weight:600;font-size:14px;}
+.job-meta{color:#7A8499;font-size:12px;}
+.price{color:#F97316;font-weight:700;}
+.btn{border:none;border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:700;font-size:13px;}
+.btn-accent{background:#F97316;color:#fff;}
+.btn-accent:hover{background:#ea6c0a;}
+.btn-muted{background:#1E2330;color:#7A8499;}
+.btn-muted:hover{background:#252C3B;}
+.btn-small{padding:5px 10px;font-size:12px;border-radius:6px;}
+.btn-status{border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:600;background:#1E2330;color:#7A8499;}
+.btn-status.active{background:#F97316;color:#fff;}
+.row-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.search-box{width:100%;background:#161A22;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:10px 14px;font-size:14px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.form-input{background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:9px 12px;font-size:13px;width:100%;}
+.form-select{background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:9px 12px;font-size:13px;width:100%;}
+.form-actions{display:flex;gap:8px;margin-top:10px;}
+.part-row{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.part-name{font-weight:700;font-size:14px;}
+.part-meta{color:#7A8499;font-size:12px;margin-top:2px;}
+.part-price{color:#F97316;font-weight:800;font-size:16px;}
+.stock-ok{color:#22C55E;font-size:12px;font-weight:700;}
+.stock-low{color:#EF4444;font-size:12px;font-weight:700;}
+.customer-row{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:14px;cursor:pointer;margin-bottom:8px;}
+.customer-row.selected{border-color:#F97316;}
+.inv-row{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:16px;margin-bottom:8px;}
+.inv-id{color:#F97316;font-weight:700;font-size:13px;}
+.inv-total{font-weight:800;font-size:18px;}
+.inv-sub{color:#7A8499;font-size:11px;}
+.cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.cal-day{background:#161A22;border:1px solid #252C3B;border-radius:12px;padding:12px;}
+.cal-day-name{font-weight:700;font-size:13px;margin-bottom:8px;}
+.cal-item{background:#0D0F14;border-left:3px solid #F97316;border-radius:0 6px 6px 0;padding:6px 8px;margin-bottom:6px;}
+.cal-time{color:#F97316;font-size:11px;font-weight:700;}
+.cal-name{font-size:12px;font-weight:600;}
+.cal-svc{color:#7A8499;font-size:11px;}
+
+/* AI */
+.mode-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.mode-btn{border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px;background:#1E2330;color:#7A8499;}
+.mode-btn.active{background:#F97316;color:#fff;}
+.veh-row{display:flex;gap:8px;flex-wrap:wrap;}
+.veh-select{flex:1;min-width:110px;background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:9px 10px;font-size:13px;}
+.chat-box{background:#161A22;border:1px solid #252C3B;border-radius:12px;display:flex;flex-direction:column;min-height:280px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:360px;}
+.chat-empty{color:#7A8499;text-align:center;padding:50px 20px;font-size:14px;line-height:1.8;}
+.msg-user{align-self:flex-end;background:#F97316;color:#fff;border-radius:12px;padding:10px 14px;max-width:88%;font-size:13px;line-height:1.7;word-break:break-word;}
+.msg-ai{align-self:flex-start;background:#1E2330;color:#E8ECF4;border-radius:12px;padding:10px 14px;max-width:90%;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.msg-ai-label{color:#F97316;font-weight:700;font-size:11px;margin-bottom:4px;}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid #252C3B;}
+.chat-input{flex:1;background:#0D0F14;color:#E8ECF4;border:1px solid #252C3B;border-radius:8px;padding:10px 14px;font-size:13px;}
+.chat-send{background:#F97316;color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:13px;}
+.chat-send:disabled{opacity:.5;cursor:not-allowed;}
+.quick-codes{display:flex;gap:6px;flex-wrap:wrap;}
+.quick-code{background:#1E2330;color:#E8ECF4;border:1px solid #252C3B;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;}
+.quick-code:hover{border-color:#F97316;color:#F97316;}
+
+/* MOBILE */
+#menu-toggle{display:none;position:fixed;top:12px;right:12px;z-index:200;background:#F97316;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:18px;}
+@media(max-width:640px){
+  #sidebar{transform:translateX(-100%);}
+  #sidebar.open{transform:translateX(0);}
+  #main{margin-left:0;padding:14px;}
+  #menu-toggle{display:block;}
+  .form-grid{grid-template-columns:1fr;}
+  .stats{flex-direction:column;}
+  .cal-grid{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
 
-const C={
-  bg:"#0D0F14",surface:"#161A22",surfaceHigh:"#1E2330",
-  border:"#252C3B",accent:"#F97316",accentGlow:"rgba(249,115,22,0.13)",
-  blue:"#3B82F6",blueDim:"#1E3A5F",green:"#22C55E",greenDim:"#14532D",
-  red:"#EF4444",redDim:"#450A0A",yellow:"#EAB308",yellowDim:"#422006",
-  text:"#E8ECF4",textMuted:"#7A8499",textDim:"#4A5568",
-};
+<button id="menu-toggle" onclick="toggleMenu()">☰</button>
 
-const BRANDS={
-  "Volkswagen":["Golf","Polo","Passat","Tiguan","Touareg","ID.4","Caddy","T-Roc","Arteon"],
+<div id="sidebar">
+  <div class="logo">
+    <div class="logo-title">⚙ AUTOPARTS</div>
+    <div class="logo-sub">EXPRESS · KI-SYSTEM</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showView('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showView('ai',this)">🤖 KI-Assistent <span class="badge">KI</span></button>
+    <button class="nav-btn" onclick="showView('workshop',this)">🔧 Werkstatt</button>
+    <button class="nav-btn" onclick="showView('parts',this)">📦 Teile & Lager</button>
+    <button class="nav-btn" onclick="showView('customers',this)">👥 Kunden</button>
+    <button class="nav-btn" onclick="showView('invoices',this)">💶 Rechnungen</button>
+    <button class="nav-btn" onclick="showView('appointments',this)">📅 Termine</button>
+  </nav>
+  <div class="key-section">
+    <div class="key-label">ANTHROPIC API-KEY</div>
+    <input class="key-input" type="password" id="apiKeyField" placeholder="sk-ant-..." oninput="apiKeyChanged()">
+    <button class="key-save" id="keySaveBtn" onclick="saveKey()">Speichern</button>
+  </div>
+  <div class="version">Autoparts Express v2.0</div>
+</div>
+
+<div id="main">
+
+<!-- DASHBOARD -->
+<div id="view-dashboard" class="view active">
+  <div><div class="page-title">📊 Dashboard</div><div class="page-sub" id="today-date"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">UMSATZ MONAT</div><div class="stat-value" style="color:#22C55E">€12.840</div><div class="stat-sub">+8% zum Vormonat</div></div>
+    <div class="stat"><div class="stat-label">OFFENE AUFTRÄGE</div><div class="stat-value" style="color:#3B82F6" id="open-jobs-count">2</div><div class="stat-sub">aktive Jobs</div></div>
+    <div class="stat"><div class="stat-label">LAGERWARNUNGEN</div><div class="stat-value" style="color:#EF4444" id="low-stock-count">2</div><div class="stat-sub">unter Mindestbestand</div></div>
+    <div class="stat"><div class="stat-label">KUNDEN GESAMT</div><div class="stat-value">138</div><div class="stat-sub">12 neue diesen Monat</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">🔧 Aktive Aufträge</div>
+    <div id="dashboard-jobs"></div>
+  </div>
+  <div class="card red-border" id="stock-warning-card">
+    <div class="section-title" style="color:#EF4444">⚠ Lagerwarnung</div>
+    <div id="stock-warnings"></div>
+  </div>
+</div>
+
+<!-- AI -->
+<div id="view-ai" class="view">
+  <div><div class="page-title">🤖 KI-Assistent</div><div class="page-sub">OBD-Codes · Teilesuche · Diagnose · Alle Fahrzeuge weltweit</div></div>
+  <div class="mode-btns">
+    <button class="mode-btn active" id="mode-obd" onclick="setMode('obd')">🔴 OBD Fehlercode</button>
+    <button class="mode-btn" id="mode-parts" onclick="setMode('parts')">🔩 Teilesuche</button>
+    <button class="mode-btn" id="mode-diagnose" onclick="setMode('diagnose')">🔬 Diagnose-Hilfe</button>
+  </div>
+  <div class="card">
+    <div class="key-label" style="margin-bottom:8px">FAHRZEUG AUSWÄHLEN (OPTIONAL)</div>
+    <div class="veh-row">
+      <select class="veh-select" id="veh-brand" onchange="updateModels()">
+        <option value="">Alle Marken</option>
+      </select>
+      <select class="veh-select" id="veh-model"><option value="">Alle Modelle</option></select>
+      <input class="veh-select" style="width:100px;flex:none" id="veh-year" placeholder="Bj. z.B. 2020" maxlength="4">
+    </div>
+  </div>
+  <div class="chat-box">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="chat-empty" id="chat-empty">Fehlercode eingeben z.B. P0300<br>oder Symptom beschreiben...</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Fehlercode z.B. P0300 oder Symptom..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-send" id="chat-send-btn" onclick="sendMsg()">▶ Senden</button>
+    </div>
+  </div>
+  <div class="card" style="padding:14px">
+    <div class="key-label" style="margin-bottom:8px">⚡ HÄUFIGE FEHLERCODES</div>
+    <div class="quick-codes" id="quick-codes"></div>
+  </div>
+</div>
+
+<!-- WORKSHOP -->
+<div id="view-workshop" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">🔧 Werkstatt & Aufträge</div><div class="page-sub" id="workshop-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewJob()">+ Neuer Auftrag</button>
+  </div>
+  <div class="card accent-border" id="new-job-form" style="display:none">
+    <div class="section-title">Neuen Auftrag erstellen</div>
+    <div class="form-grid">
+      <input class="form-input" id="nj-customer" placeholder="Kunde *">
+      <input class="form-input" id="nj-vehicle" placeholder="Fahrzeug *">
+      <input class="form-input" id="nj-plate" placeholder="Kennzeichen">
+      <input class="form-input" id="nj-service" placeholder="Leistung">
+      <input class="form-input" id="nj-mechanic" placeholder="Mechaniker">
+      <input class="form-input" id="nj-start" placeholder="Startzeit">
+      <input class="form-input" id="nj-est" placeholder="Fertig ca.">
+      <input class="form-input" id="nj-price" placeholder="Preis (€)" type="number">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addJob()">Erstellen</button>
+      <button class="btn btn-muted" onclick="toggleNewJob()">Abbrechen</button>
+    </div>
+  </div>
+  <div id="jobs-list"></div>
+</div>
+
+<!-- PARTS -->
+<div id="view-parts" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">📦 Teile & Lager</div><div class="page-sub" id="parts-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewPart()">+ Neues Teil</button>
+  </div>
+  <div class="card accent-border" id="new-part-form" style="display:none">
+    <div class="section-title">Neues Teil anlegen</div>
+    <div class="form-grid">
+      <input class="form-input" id="np-name" placeholder="Bezeichnung *">
+      <input class="form-input" id="np-sku" placeholder="SKU *">
+      <input class="form-input" id="np-brand" placeholder="Marke">
+      <input class="form-input" id="np-fit" placeholder="Kompatibel mit">
+      <input class="form-input" id="np-price" placeholder="Preis (€)" type="number">
+      <input class="form-input" id="np-stock" placeholder="Bestand (Stk)" type="number">
+      <input class="form-input" id="np-min" placeholder="Mindestbestand" type="number">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addPart()">Speichern</button>
+      <button class="btn btn-muted" onclick="toggleNewPart()">Abbrechen</button>
+    </div>
+  </div>
+  <input class="search-box" id="parts-search" placeholder="🔍 Suchen (Name, SKU, Marke)..." oninput="renderParts()">
+  <div id="parts-list"></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div id="view-customers" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">👥 Kunden & Fahrzeuge</div><div class="page-sub" id="customers-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewCustomer()">+ Neuer Kunde</button>
+  </div>
+  <div class="card accent-border" id="new-customer-form" style="display:none">
+    <div class="section-title">Neuen Kunden anlegen</div>
+    <div class="form-grid">
+      <input class="form-input" id="nc-name" placeholder="Name *">
+      <input class="form-input" id="nc-phone" placeholder="Telefon">
+      <input class="form-input" id="nc-email" placeholder="E-Mail">
+      <input class="form-input" id="nc-vehicle" placeholder="Fahrzeug (z.B. BMW 3er 2020)">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addCustomer()">Speichern</button>
+      <button class="btn btn-muted" onclick="toggleNewCustomer()">Abbrechen</button>
+    </div>
+  </div>
+  <input class="search-box" id="customers-search" placeholder="🔍 Kunden suchen..." oninput="renderCustomers()">
+  <div id="customers-list"></div>
+</div>
+
+<!-- INVOICES -->
+<div id="view-invoices" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><div class="page-title">💶 Rechnungen</div><div class="page-sub" id="invoices-count"></div></div>
+    <button class="btn btn-accent" onclick="toggleNewInvoice()">+ Neue Rechnung</button>
+  </div>
+  <div class="stats" id="inv-stats"></div>
+  <div class="card accent-border" id="new-invoice-form" style="display:none">
+    <div class="section-title">Neue Rechnung erstellen</div>
+    <div class="form-grid">
+      <input class="form-input" id="ni-customer" placeholder="Kunde *">
+      <input class="form-input" id="ni-service" placeholder="Leistung">
+      <input class="form-input" id="ni-net" placeholder="Nettobetrag (€)" type="number" oninput="calcVat()">
+      <select class="form-select" id="ni-status">
+        <option value="open">Offen</option>
+        <option value="paid">Bezahlt</option>
+        <option value="overdue">Überfällig</option>
+      </select>
+    </div>
+    <div id="vat-preview" style="color:#7A8499;font-size:12px;margin-top:6px"></div>
+    <div class="form-actions">
+      <button class="btn btn-accent" onclick="addInvoice()">Erstellen</button>
+      <button class="btn btn-muted" onclick="toggleNewInvoice()">Abbrechen</button>
+    </div>
+  </div>
+  <div id="invoices-list"></div>
+</div>
+
+<!-- APPOINTMENTS -->
+<div id="view-appointments" class="view">
+  <div><div class="page-title">📅 Terminkalender</div><div class="page-sub" id="cal-month"></div></div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <button class="btn btn-muted" style="align-self:flex-start;margin-top:4px">+ Neuen Termin</button>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const BRANDS = {
+  "Volkswagen":["Golf","Polo","Passat","Tiguan","Touareg","ID.4","Caddy","T-Roc"],
   "BMW":["1er","2er","3er","4er","5er","7er","X1","X3","X5","X7","M3","M5","Z4"],
-  "Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","S-Klasse","GLA","GLC","GLE","GLS"],
+  "Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","S-Klasse","GLA","GLC","GLE"],
   "Audi":["A1","A3","A4","A5","A6","A7","A8","Q3","Q5","Q7","Q8","TT","R8","e-tron"],
   "Ford":["Fiesta","Focus","Mondeo","Kuga","Puma","Mustang","Ranger","Transit"],
-  "Toyota":["Yaris","Corolla","Camry","RAV4","Hilux","Land Cruiser","Supra","C-HR","Prius"],
+  "Toyota":["Yaris","Corolla","Camry","RAV4","Hilux","Land Cruiser","Supra","Prius"],
   "Opel":["Corsa","Astra","Insignia","Mokka","Crossland","Grandland","Zafira"],
   "Seat":["Ibiza","Leon","Arona","Ateca","Tarraco","Formentor"],
   "Skoda":["Fabia","Octavia","Superb","Kodiaq","Karoq","Kamiq","Enyaq"],
   "Renault":["Clio","Megane","Kadjar","Captur","Scenic","Zoe","Arkana"],
-  "Peugeot":["208","308","508","2008","3008","5008","Partner","Rifter"],
-  "Citroën":["C1","C3","C4","C5","Berlingo","SpaceTourer"],
+  "Peugeot":["208","308","508","2008","3008","5008","Partner"],
   "Fiat":["500","Panda","Tipo","Punto","Ducato","Doblo"],
   "Honda":["Civic","Accord","CR-V","HR-V","Jazz","Type R"],
   "Nissan":["Micra","Juke","Qashqai","X-Trail","Leaf","GT-R","Navara"],
   "Hyundai":["i10","i20","i30","Tucson","Santa Fe","Kona","Ioniq 5"],
   "Kia":["Picanto","Rio","Ceed","Sportage","Sorento","EV6","Stinger"],
   "Mazda":["2","3","6","CX-3","CX-5","CX-30","MX-5"],
-  "Subaru":["Impreza","Forester","Outback","XV","WRX","BRZ"],
   "Volvo":["V40","V60","V90","S60","S90","XC40","XC60","XC90"],
   "Land Rover":["Defender","Discovery","Range Rover","Evoque","Velar"],
   "Jeep":["Wrangler","Grand Cherokee","Cherokee","Compass","Renegade"],
@@ -53,6 +343,7 @@ const BRANDS={
   "Tesla":["Model S","Model 3","Model X","Model Y","Cybertruck"],
   "Chevrolet":["Spark","Cruze","Equinox","Tahoe","Silverado","Camaro","Corvette"],
   "Lexus":["IS","ES","LS","UX","NX","RX","LX","LC"],
+  "Subaru":["Impreza","Forester","Outback","XV","WRX","BRZ"],
   "Mitsubishi":["Eclipse Cross","Outlander","L200","ASX","Pajero"],
   "Suzuki":["Swift","Vitara","Jimny","S-Cross","Baleno"],
   "Dacia":["Sandero","Logan","Duster","Spring","Jogger"],
@@ -63,521 +354,422 @@ const BRANDS={
   "Bentley":["Continental GT","Flying Spur","Bentayga"],
   "Rolls-Royce":["Ghost","Phantom","Cullinan"],
   "Maserati":["Ghibli","Quattroporte","Levante","GranTurismo"],
+  "Infiniti":["Q50","Q60","QX50","QX60","QX80"],
+  "Genesis":["G70","G80","G90","GV70","GV80"],
+  "Isuzu":["D-Max","MU-X","Trooper"],
+  "Citroën":["C1","C3","C4","C5","Berlingo","SpaceTourer"],
 };
 
-const OBD={
-  "P0100":{s:"Luftmassenmesser",d:"Luftmassensensor Stromkreis Fehlfunktion",sev:"medium"},
-  "P0115":{s:"Kühlmitteltemperatur",d:"Kühlmitteltemperatursensor Kreisfehler",sev:"high"},
-  "P0120":{s:"Drosselklappe",d:"Drosselklappensensor A Kreisfehler",sev:"high"},
-  "P0128":{s:"Kühlung",d:"Kühlmitteltemperatur unter Thermostat-Sollwert",sev:"medium"},
-  "P0130":{s:"Lambda-Sonde",d:"O2-Sensor Stromkreis Bank 1 Sensor 1",sev:"medium"},
-  "P0171":{s:"Kraftstoffgemisch",d:"Kraftstoffsystem zu mager Bank 1",sev:"high"},
-  "P0172":{s:"Kraftstoffgemisch",d:"Kraftstoffsystem zu fett Bank 1",sev:"high"},
-  "P0200":{s:"Einspritzventil",d:"Einspritzventil Stromkreis Fehlfunktion",sev:"high"},
-  "P0300":{s:"Zündung",d:"Mehrfache Zylinder-Aussetzer erkannt",sev:"critical"},
-  "P0301":{s:"Zylinder 1",d:"Zündaussetzer Zylinder 1",sev:"critical"},
-  "P0302":{s:"Zylinder 2",d:"Zündaussetzer Zylinder 2",sev:"critical"},
-  "P0303":{s:"Zylinder 3",d:"Zündaussetzer Zylinder 3",sev:"critical"},
-  "P0304":{s:"Zylinder 4",d:"Zündaussetzer Zylinder 4",sev:"critical"},
-  "P0340":{s:"Nockenwelle",d:"Nockenwellenpositionssensor A Kreisfehler",sev:"critical"},
-  "P0400":{s:"AGR",d:"AGR Durchfluss Fehlfunktion",sev:"medium"},
-  "P0420":{s:"Katalysator",d:"Katalysator Effizienz unter Schwellenwert Bank 1",sev:"medium"},
-  "P0440":{s:"Tankentlüftung",d:"Kraftstoffdampf Rückgewinnungssystem Fehlfunktion",sev:"low"},
-  "P0455":{s:"Tankentlüftung",d:"Tankentlüftungssystem großes Leck",sev:"medium"},
-  "P0480":{s:"Kühlerlüfter",d:"Kühlerlüfter 1 Steuer Kreisfehler",sev:"high"},
-  "P0500":{s:"Geschwindigkeit",d:"Fahrzeuggeschwindigkeitssensor Fehlfunktion",sev:"medium"},
-  "P0505":{s:"Leerlauf",d:"Leerlaufregelventil Fehlfunktion",sev:"medium"},
-  "P0700":{s:"Getriebe",d:"Getriebesteuerungssystem Fehlfunktion",sev:"critical"},
-  "P0730":{s:"Getriebe",d:"Falsches Übersetzungsverhältnis",sev:"critical"},
-  "U0001":{s:"CAN-Bus",d:"Hochgeschwindigkeits CAN Bus Kommunikationsfehler",sev:"critical"},
-  "U0100":{s:"Kommunikation",d:"Verlust der Kommunikation mit ECM PCM",sev:"critical"},
-  "C0031":{s:"ABS",d:"Linkes Vorderrad Drehzahlsensor Kreisfehler",sev:"high"},
-  "C0035":{s:"ABS",d:"Linkes Hinterrad Drehzahlsensor Kreisfehler",sev:"high"},
-  "C0110":{s:"ABS-Pumpe",d:"ABS Pumpenmotor Kreisfehler",sev:"critical"},
+const OBD = {
+  "P0100":"Luftmassensensor – Stromkreis Fehlfunktion",
+  "P0115":"Kühlmitteltemperatursensor – Kreisfehler",
+  "P0120":"Drosselklappensensor A – Kreisfehler",
+  "P0128":"Kühlmitteltemperatur unter Thermostat-Sollwert",
+  "P0130":"O2-Sensor Stromkreis, Bank 1 Sensor 1",
+  "P0171":"Kraftstoffsystem zu mager, Bank 1",
+  "P0172":"Kraftstoffsystem zu fett, Bank 1",
+  "P0200":"Einspritzventil Stromkreis Fehlfunktion",
+  "P0300":"Mehrfache/zufällige Zylinder-Aussetzer",
+  "P0301":"Zündaussetzer Zylinder 1",
+  "P0302":"Zündaussetzer Zylinder 2",
+  "P0303":"Zündaussetzer Zylinder 3",
+  "P0304":"Zündaussetzer Zylinder 4",
+  "P0340":"Nockenwellenpositionssensor A – Kreisfehler",
+  "P0400":"AGR Durchfluss Fehlfunktion",
+  "P0420":"Katalysator Effizienz unter Schwellenwert",
+  "P0440":"Tankentlüftungssystem Fehlfunktion",
+  "P0455":"Tankentlüftungssystem großes Leck",
+  "P0480":"Kühlerlüfter Steuer-Kreisfehler",
+  "P0500":"Fahrzeuggeschwindigkeitssensor Fehlfunktion",
+  "P0505":"Leerlaufregelventil Fehlfunktion",
+  "P0700":"Getriebesteuerungssystem Fehlfunktion",
+  "P0730":"Falsches Übersetzungsverhältnis",
+  "U0001":"CAN-Bus Kommunikationsfehler",
+  "U0100":"Verlust der Kommunikation mit ECM/PCM",
+  "C0031":"Linkes Vorderrad-Drehzahlsensor Kreisfehler",
+  "C0035":"Linkes Hinterrad-Drehzahlsensor Kreisfehler",
+  "C0110":"ABS-Pumpenmotor Kreisfehler",
 };
 
-const JOBS0=[
+let jobs = [
   {id:1,customer:"Marcus Hoffmann",vehicle:"BMW 3er 2019",plate:"EN-MH 4521",service:"Inspektion + Ölwechsel",mechanic:"Kerim Y.",status:"in_progress",start:"09:00",est:"11:00",price:189},
   {id:2,customer:"Sandra Koch",vehicle:"VW Golf 2021",plate:"M-SK 7834",service:"Bremsbeläge VA + HA",mechanic:"Mehmet A.",status:"waiting",start:"11:30",est:"13:30",price:320},
   {id:3,customer:"Julia Berger",vehicle:"Audi A4 2022",plate:"M-JB 6612",service:"Fehlercode P0300 Diagnose",mechanic:"Kerim Y.",status:"done",start:"08:00",est:"09:30",price:95},
 ];
-const PARTS0=[
+let parts = [
   {id:1,name:"Ölfilter Universal",sku:"OF-001",price:8.90,stock:47,min:10,brand:"Mann-Filter",fit:"VW, Audi, Seat"},
   {id:2,name:"Bremsscheiben Set VA",sku:"BS-BMW3-VA",price:89.90,stock:3,min:5,brand:"Brembo",fit:"BMW 3er 4er"},
   {id:3,name:"Zündkerzen Set NGK",sku:"ZK-NGK-B6S",price:24.50,stock:28,min:8,brand:"NGK",fit:"Universell 4-Zyl."},
   {id:4,name:"Luftfilter VW Golf VII",sku:"LF-VWGOLF7",price:14.20,stock:12,min:5,brand:"Bosch",fit:"VW Golf VII 1.4 TSI"},
   {id:5,name:"Stoßdämpfer HA MB C204",sku:"SD-MB-C204",price:145,stock:2,min:3,brand:"Bilstein",fit:"Mercedes C W204"},
-  {id:6,name:"Keilrippenriemen",sku:"KR-BMW-N47",price:32.80,stock:8,min:4,brand:"ContiTech",fit:"BMW N47 Diesel"},
+  {id:6,name:"Keilrippenriemen BMW N47",sku:"KR-BMW-N47",price:32.80,stock:8,min:4,brand:"ContiTech",fit:"BMW N47 Diesel"},
   {id:7,name:"Kühlmittel Konzentrat 1L",sku:"KM-1L",price:12.50,stock:34,min:10,brand:"Febi",fit:"Universell"},
   {id:8,name:"Getriebeöl ATF 1L",sku:"GO-ATF",price:18.90,stock:6,min:5,brand:"Liqui-Moly",fit:"Automatikgetriebe"},
 ];
-const CUSTS0=[
+let customers = [
   {id:1,name:"Marcus Hoffmann",phone:"+49 89 4521 8734",email:"m.hoffmann@email.de",vehicles:["BMW 3er (2019) – EN-MH 4521"]},
   {id:2,name:"Sandra Koch",phone:"+49 89 7834 2211",email:"s.koch@web.de",vehicles:["VW Golf (2021) – M-SK 7834","Opel Corsa (2018)"]},
   {id:3,name:"Dimitri Papadopoulos",phone:"+49 89 3312 9900",email:"d.papa@gmail.com",vehicles:["Mercedes C-Klasse (2020)"]},
   {id:4,name:"Julia Berger",phone:"+49 89 6612 4400",email:"j.berger@t-online.de",vehicles:["Audi A4 (2022) – M-JB 6612"]},
 ];
-const INV0=[
+let invoices = [
   {id:"RE-2025-041",customer:"Marcus Hoffmann",service:"Inspektion + Ölwechsel",date:"09.06.2025",net:159,tax:30.21,total:189.21,status:"paid"},
   {id:"RE-2025-040",customer:"Sandra Koch",service:"Bremsbeläge VA + HA",date:"08.06.2025",net:268.91,tax:51.09,total:320,status:"open"},
   {id:"RE-2025-039",customer:"Julia Berger",service:"Diagnose Fehlercode",date:"07.06.2025",net:79.83,tax:15.17,total:95,status:"paid"},
   {id:"RE-2025-038",customer:"Dimitri Papadopoulos",service:"Stoßdämpfer HA",date:"05.06.2025",net:453.78,tax:86.22,total:540,status:"overdue"},
 ];
+const appointments = [
+  {day:0,time:"08:00",name:"Marcus Hoffmann",svc:"Inspektion",dur:120},
+  {day:0,time:"11:00",name:"Sandra Koch",svc:"Bremsen",dur:120},
+  {day:1,time:"09:00",name:"Julia Berger",svc:"Diagnose",dur:90},
+  {day:2,time:"10:30",name:"Dimitri P.",svc:"Stoßdämpfer",dur:180},
+  {day:3,time:"14:00",name:"Neukunde",svc:"Reifenwechsel",dur:60},
+  {day:4,time:"08:30",name:"Sandra Koch",svc:"Abholung",dur:30},
+];
 
-// ── HELPERS ──
-function Badge({t,c}){
-  const m={critical:{bg:"#450A0A",fc:"#EF4444"},high:{bg:"#431407",fc:"#FB923C"},medium:{bg:"#422006",fc:"#EAB308"},low:{bg:"#14532D",fc:"#22C55E"},in_progress:{bg:"#1E3A5F",fc:"#3B82F6"},waiting:{bg:"#422006",fc:"#EAB308"},done:{bg:"#14532D",fc:"#22C55E"},paid:{bg:"#14532D",fc:"#22C55E"},open:{bg:"#1E3A5F",fc:"#3B82F6"},overdue:{bg:"#450A0A",fc:"#EF4444"}};
-  const s=m[c]||m[t]||{bg:C.surfaceHigh,fc:C.textMuted};
-  return <span style={{background:s.bg,color:s.fc,borderRadius:6,padding:"2px 9px",fontSize:11,fontWeight:700}}>{t}</span>;
+// ── INIT ──
+let aiMode = 'obd';
+let selectedCustomer = null;
+
+window.onload = function() {
+  // Date
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('cal-month').textContent = new Date().toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+
+  // Load key
+  const k = localStorage.getItem('ape_apikey') || '';
+  document.getElementById('apiKeyField').value = k;
+  if(k) { document.getElementById('keySaveBtn').textContent = '✓ Gespeichert'; document.getElementById('keySaveBtn').className = 'key-save ok'; }
+
+  // Vehicle brands
+  const bs = document.getElementById('veh-brand');
+  Object.keys(BRANDS).sort().forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; bs.appendChild(o); });
+
+  // Quick codes
+  const qc = document.getElementById('quick-codes');
+  ['P0300','P0171','P0420','P0115','U0001','P0340','P0700','C0031','P0172','P0128'].forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-code'; btn.textContent = c;
+    btn.title = OBD[c] || c;
+    btn.onclick = () => { document.getElementById('chat-input').value = c; aiMode = 'obd'; setMode('obd'); };
+    qc.appendChild(btn);
+  });
+
+  renderAll();
+};
+
+function renderAll() {
+  renderDashboard(); renderJobs(); renderParts(); renderCustomers(); renderInvoices(); renderCalendar();
 }
-function Card({children,style={}}){return <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:18,...style}}>{children}</div>;}
-function Inp({value,onChange,placeholder,type="text",style={}}){
-  return <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-    style={{background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,width:"100%",...style}}/>;
+
+// ── NAVIGATION ──
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(window.innerWidth <= 640) document.getElementById('sidebar').classList.remove('open');
 }
-function Btn({children,onClick,variant="muted",style={}}){
-  const bg=variant==="accent"?C.accent:variant==="danger"?"#7F1D1D":C.surfaceHigh;
-  const fc=variant==="accent"||variant==="danger"?"#fff":C.textMuted;
-  return <button onClick={onClick} style={{background:bg,color:fc,border:"none",borderRadius:8,padding:"9px 16px",cursor:"pointer",fontWeight:700,fontSize:13,...style}}>{children}</button>;
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
 }
-function Stat({label,value,sub,color}){
-  return <Card style={{flex:1,minWidth:130}}>
-    <div style={{color:C.textMuted,fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:5}}>{label.toUpperCase()}</div>
-    <div style={{color:color||C.text,fontSize:26,fontWeight:800,lineHeight:1}}>{value}</div>
-    {sub&&<div style={{color:C.textMuted,fontSize:12,marginTop:4}}>{sub}</div>}
-  </Card>;
+
+// ── API KEY ──
+function apiKeyChanged() {
+  document.getElementById('keySaveBtn').textContent = 'Speichern';
+  document.getElementById('keySaveBtn').className = 'key-save';
+}
+function saveKey() {
+  const v = document.getElementById('apiKeyField').value.trim();
+  localStorage.setItem('ape_apikey', v);
+  document.getElementById('keySaveBtn').textContent = '✓ Gespeichert!';
+  document.getElementById('keySaveBtn').className = 'key-save ok';
+  setTimeout(() => {
+    document.getElementById('keySaveBtn').textContent = '✓ Aktiv';
+  }, 1500);
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const openJobs = jobs.filter(j => j.status !== 'done');
+  const lowStock = parts.filter(p => p.stock < p.min);
+  document.getElementById('open-jobs-count').textContent = openJobs.length;
+  document.getElementById('low-stock-count').textContent = lowStock.length;
+  document.getElementById('low-stock-count').style.color = lowStock.length > 0 ? '#EF4444' : '#22C55E';
+
+  const sl = {in_progress:'In Arbeit', waiting:'Wartet', done:'Fertig'};
+  document.getElementById('dashboard-jobs').innerHTML = jobs.map(j => `
+    <div class="job-row">
+      <span class="badge ${j.status}">${sl[j.status]}</span>
+      <div style="flex:1"><div class="job-name">${j.customer} · <span style="color:#7A8499;font-weight:400">${j.vehicle}</span></div>
+      <div class="job-meta">${j.service} · 👤 ${j.mechanic}</div></div>
+      <span class="price">€${j.price}</span>
+      <span style="color:#7A8499;font-size:12px">${j.start}–${j.est}</span>
+    </div>`).join('');
+
+  if(lowStock.length > 0) {
+    document.getElementById('stock-warning-card').style.display = 'block';
+    document.getElementById('stock-warnings').innerHTML = lowStock.map(p =>
+      `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #252C3B;font-size:13px"><span>${p.name}</span><span style="color:#EF4444;font-weight:700">Bestand: ${p.stock} | Min: ${p.min}</span></div>`
+    ).join('');
+  } else {
+    document.getElementById('stock-warning-card').style.display = 'none';
+  }
 }
 
 // ── AI ──
-async function callAI(system,user){
-  const key=localStorage.getItem("ape_apikey")||"";
-  if(!key) return "⚠ Kein API-Key gespeichert. Bitte unten links in der Sidebar den Key eintragen.";
-  try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key":key,
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
+function setMode(m) {
+  aiMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  const ph = {obd:'Fehlercode z.B. P0300 oder Symptom...', parts:'Teil oder Problem beschreiben...', diagnose:'Symptom genau beschreiben...'};
+  document.getElementById('chat-input').placeholder = ph[m];
+  document.getElementById('chat-empty').innerHTML = {
+    obd:'Fehlercode eingeben z.B. P0300<br>oder Symptom beschreiben...',
+    parts:'Fahrzeug + Problem beschreiben<br>welches Teil wird gesucht...',
+    diagnose:'Symptom genau beschreiben<br>KI gibt Schritt-für-Schritt Diagnose...'
+  }[m];
+}
+
+function updateModels() {
+  const brand = document.getElementById('veh-brand').value;
+  const sel = document.getElementById('veh-model');
+  sel.innerHTML = '<option value="">Alle Modelle</option>';
+  if(brand && BRANDS[brand]) {
+    BRANDS[brand].forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; sel.appendChild(o); });
+  }
+}
+
+function addChatMsg(role, text) {
+  const box = document.getElementById('chat-msgs');
+  const empty = document.getElementById('chat-empty');
+  if(empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = role === 'user' ? 'msg-user' : 'msg-ai';
+  if(role === 'ai') div.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>' + escHtml(text);
+  else div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+async function sendMsg() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  const key = localStorage.getItem('ape_apikey') || '';
+  if(!key) {
+    addChatMsg('ai', '⚠ Kein API-Key gespeichert!\nBitte unten links in der Sidebar den Anthropic API-Key eintragen und auf Speichern drücken.');
+    return;
+  }
+  inp.value = '';
+  document.getElementById('chat-send-btn').disabled = true;
+  addChatMsg('user', txt);
+  const loadDiv = addChatMsg('ai', '⏳ KI analysiert...');
+
+  const brand = document.getElementById('veh-brand').value;
+  const model = document.getElementById('veh-model').value;
+  const year = document.getElementById('veh-year').value;
+  const veh = brand ? `Fahrzeug: ${brand} ${model} ${year}\n` : '';
+
+  const code = txt.toUpperCase().match(/[PBCU][0-9]{4}/)?.[0];
+  const obdDesc = code ? OBD[code] : null;
+
+  let sys = '', prompt = '';
+  if(aiMode === 'obd') {
+    sys = 'Du bist ein erfahrener Kfz-Mechatroniker. Antworte auf Deutsch, präzise und strukturiert. Gliedere: 1) Was bedeutet der Code/das Symptom 2) Wo liegt das Problem genau 3) Was muss geprüft oder getauscht werden 4) Geschätzter Aufwand in Stunden und Euro.';
+    prompt = obdDesc ? `${veh}Fehlercode: ${code}\nBeschreibung: ${obdDesc}\n\nErkläre genau was das bedeutet, wo das Problem liegt und was zu tun ist.` : `${veh}Fehlercode oder Symptom: ${txt}\nAnalysiere und gib eine detaillierte Diagnose.`;
+  } else if(aiMode === 'parts') {
+    sys = 'Du bist ein Kfz-Teile-Experte. Antworte auf Deutsch. Nenne konkrete Teile, Marken (Brembo/Bosch/NGK/Mann/Bilstein/ContiTech), Preisrahmen und wichtige Montagehinweise.';
+    prompt = `${veh}Gesuchtes Teil / Problem: ${txt}\nWelche Teile werden benötigt, welche Marken, Preisrahmen, Besonderheiten?`;
+  } else {
+    sys = 'Du bist Senior Kfz-Mechatroniker mit 20 Jahren Erfahrung. Antworte auf Deutsch, Schritt-für-Schritt mit konkreten Prüfschritten, geordnet nach Wahrscheinlichkeit.';
+    prompt = `${veh}Problem / Symptom: ${txt}\nSystematische Diagnose-Anleitung mit konkreten Prüfschritten.`;
+  }
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1024,system,messages:[{role:"user",content:user}]})
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:sys,messages:[{role:'user',content:prompt}]})
     });
-    const d=await r.json();
-    if(d.error) return "⚠ API Fehler: "+d.error.message;
-    return d.content?.map(b=>b.text||"").join("")||"Keine Antwort.";
-  }catch(e){
-    return "⚠ Verbindungsfehler: "+e.message;
+    const d = await r.json();
+    if(d.error) { loadDiv.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>⚠ API Fehler: ' + escHtml(d.error.message); }
+    else { const ans = d.content?.map(b=>b.text||'').join('')||'Keine Antwort.'; loadDiv.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>' + escHtml(ans); }
+  } catch(e) {
+    loadDiv.innerHTML = '<div class="msg-ai-label">🤖 KI-ASSISTENT</div>⚠ Verbindungsfehler: ' + escHtml(e.message);
   }
+  document.getElementById('chat-send-btn').disabled = false;
+  document.getElementById('chat-msgs').scrollTop = 9999;
 }
 
-// ── VIEWS ──
-function Dashboard({jobs,parts}){
-  const low=parts.filter(p=>p.stock<p.min);
-  const sl={in_progress:"In Arbeit",waiting:"Wartet",done:"Fertig"};
-  return <div style={{display:"flex",flexDirection:"column",gap:20}}>
-    <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>📊 Dashboard</h2>
-    <div style={{color:C.textMuted,fontSize:13,marginTop:2}}>{new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})}</div></div>
-    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-      <Stat label="Umsatz Monat" value="€12.840" sub="+8% zum Vormonat" color={C.green}/>
-      <Stat label="Offene Aufträge" value={jobs.filter(j=>j.status!=="done").length} sub="aktive Jobs" color={C.blue}/>
-      <Stat label="Lagerwarnungen" value={low.length} sub="unter Mindestbestand" color={low.length>0?C.red:C.green}/>
-      <Stat label="Kunden gesamt" value="138" sub="12 neue diesen Monat"/>
-    </div>
-    <Card>
-      <div style={{color:C.text,fontWeight:700,marginBottom:14,fontSize:15}}>🔧 Aktive Aufträge</div>
-      {jobs.map(j=><div key={j.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}`,flexWrap:"wrap"}}>
-        <Badge t={sl[j.status]} c={j.status}/>
-        <div style={{flex:1}}><div style={{color:C.text,fontWeight:600,fontSize:14}}>{j.customer} · <span style={{color:C.textMuted,fontWeight:400}}>{j.vehicle}</span></div>
-        <div style={{color:C.textMuted,fontSize:12}}>{j.service} · 👤 {j.mechanic}</div></div>
-        <span style={{color:C.accent,fontWeight:700}}>€{j.price}</span>
-        <span style={{color:C.textMuted,fontSize:12}}>{j.start}–{j.est}</span>
-      </div>)}
-    </Card>
-    {low.length>0&&<Card style={{borderColor:C.red}}>
-      <div style={{color:C.red,fontWeight:700,marginBottom:10}}>⚠ Lagerwarnung</div>
-      {low.map(p=><div key={p.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.border}`,color:C.text,fontSize:13}}>
-        <span>{p.name}</span><span style={{color:C.red,fontWeight:700}}>Bestand: {p.stock} | Min: {p.min}</span>
-      </div>)}
-    </Card>}
-  </div>;
+// ── WORKSHOP ──
+function toggleNewJob() {
+  const f = document.getElementById('new-job-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addJob() {
+  const c = document.getElementById('nj-customer').value.trim();
+  if(!c) return;
+  jobs.unshift({id:Date.now(),customer:c,vehicle:document.getElementById('nj-vehicle').value,plate:document.getElementById('nj-plate').value,service:document.getElementById('nj-service').value,mechanic:document.getElementById('nj-mechanic').value,status:'waiting',start:document.getElementById('nj-start').value,est:document.getElementById('nj-est').value,price:+document.getElementById('nj-price').value||0});
+  ['nj-customer','nj-vehicle','nj-plate','nj-service','nj-mechanic','nj-start','nj-est','nj-price'].forEach(id=>document.getElementById(id).value='');
+  toggleNewJob(); renderJobs(); renderDashboard();
+}
+function setJobStatus(id, s) {
+  jobs = jobs.map(j => j.id===id ? {...j,status:s} : j);
+  renderJobs(); renderDashboard();
+}
+function renderJobs() {
+  const sl = {in_progress:'In Arbeit', waiting:'Wartet', done:'Fertig'};
+  document.getElementById('workshop-count').textContent = jobs.filter(j=>j.status!=='done').length + ' aktive Aufträge';
+  document.getElementById('jobs-list').innerHTML = jobs.map(j => `
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div><div class="job-name">${j.customer}</div><div class="job-meta">🚗 ${j.vehicle} · ${j.plate}</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="badge ${j.status}">${sl[j.status]}</span><span class="price" style="font-size:16px;font-weight:800">€${j.price}</span></div>
+      </div>
+      <div style="font-size:13px;margin-bottom:6px">🔩 ${j.service}</div>
+      <div class="job-meta" style="margin-bottom:12px">👤 ${j.mechanic} · ⏰ ${j.start}–${j.est}</div>
+      <div class="row-actions">
+        <button class="btn-status ${j.status==='waiting'?'active':''}" onclick="setJobStatus(${j.id},'waiting')">Wartet</button>
+        <button class="btn-status ${j.status==='in_progress'?'active':''}" onclick="setJobStatus(${j.id},'in_progress')">In Arbeit</button>
+        <button class="btn-status ${j.status==='done'?'active':''}" onclick="setJobStatus(${j.id},'done')">Fertig</button>
+      </div>
+    </div>`).join('');
 }
 
-function AIView(){
-  const [mode,setMode]=React.useState("obd");
-  const [msgs,setMsgs]=React.useState([]);
-  const [inp,setInp]=React.useState("");
-  const [veh,setVeh]=React.useState({brand:"",model:"",year:""});
-  const [loading,setLoading]=React.useState(false);
-  const bot=React.useRef();
-  React.useEffect(()=>bot.current?.scrollIntoView({behavior:"smooth"}),[msgs]);
-  const brands=Object.keys(BRANDS).sort();
-  const models=veh.brand?BRANDS[veh.brand]:[];
-
-  async function send(){
-    if(!inp.trim()||loading)return;
-    const txt=inp.trim();setInp("");setLoading(true);
-    setMsgs(p=>[...p,{r:"user",t:txt}]);
-    const v=veh.brand?`Fahrzeug: ${veh.brand} ${veh.model} ${veh.year}
-`:"";
-    let sys="",prompt="";
-    if(mode==="obd"){
-      const code=txt.toUpperCase().match(/[PBCU][0-9]{4}/)?.[0];
-      const loc=code?OBD[code]:null;
-      sys="Du bist ein erfahrener Kfz-Mechatroniker. Antworte auf Deutsch, präzise und strukturiert. Gliedere: 1) Bedeutung 2) Wo liegt das Problem 3) Was prüfen/tauschen 4) Aufwand in Stunden und Euro (Schätzung).";
-      prompt=loc?`${v}Fehlercode: ${code}
-System: ${loc.s}
-Beschreibung: ${loc.d}
-Schweregrad: ${loc.sev}
-
-Erkläre genau was das bedeutet, wo das Problem liegt und was zu tun ist.`:`${v}Fehlercode oder Symptom: ${txt}
-Analysiere und gib eine detaillierte Diagnose.`;
-    }else if(mode==="parts"){
-      sys="Du bist ein Kfz-Teile-Experte. Antworte auf Deutsch. Nenne konkrete Teile, Marken (Brembo/Bosch/NGK/Mann/Bilstein), Preisrahmen und Montagehinweise.";
-      prompt=`${v}Gesuchtes Teil / Problem: ${txt}
-Welche Teile werden benötigt, welche Marken, Preisrahmen, Besonderheiten?`;
-    }else{
-      sys="Du bist Senior Kfz-Mechatroniker mit 20 Jahren Erfahrung. Antworte auf Deutsch, Schritt-für-Schritt, mit konkreten Prüfschritten.";
-      prompt=`${v}Problem / Symptom: ${txt}
-Systematische Diagnose-Anleitung mit Prüfschritten, geordnet nach Wahrscheinlichkeit.`;
-    }
-    const res=await callAI(sys,prompt);
-    setMsgs(p=>[...p,{r:"ai",t:res}]);
-    setLoading(false);
-  }
-
-  return <div style={{display:"flex",flexDirection:"column",gap:14}}>
-    <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>🤖 KI-Assistent</h2>
-    <div style={{color:C.textMuted,fontSize:13,marginTop:2}}>OBD-Codes · Teilesuche · Diagnose · Alle Fahrzeuge weltweit</div></div>
-    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-      {[["obd","🔴 OBD Fehlercode"],["parts","🔩 Teilesuche"],["diagnose","🔬 Diagnose-Hilfe"]].map(([id,label])=>
-        <button key={id} onClick={()=>setMode(id)} style={{background:mode===id?C.accent:C.surfaceHigh,color:mode===id?"#fff":C.textMuted,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontWeight:700,fontSize:13}}>{label}</button>
-      )}
-    </div>
-    <Card style={{padding:14}}>
-      <div style={{color:C.textMuted,fontSize:11,fontWeight:700,marginBottom:8,letterSpacing:1}}>FAHRZEUG (OPTIONAL)</div>
-      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-        <select value={veh.brand} onChange={e=>setVeh({brand:e.target.value,model:"",year:""})}
-          style={{flex:1,minWidth:120,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",fontSize:13}}>
-          <option value="">Alle Marken</option>{brands.map(b=><option key={b}>{b}</option>)}
-        </select>
-        <select value={veh.model} onChange={e=>setVeh(v=>({...v,model:e.target.value}))}
-          style={{flex:1,minWidth:120,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",fontSize:13}}>
-          <option value="">Alle Modelle</option>{models.map(m=><option key={m}>{m}</option>)}
-        </select>
-        <input value={veh.year} onChange={e=>setVeh(v=>({...v,year:e.target.value}))} placeholder="Bj. z.B. 2020"
-          style={{width:105,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",fontSize:13}}/>
-      </div>
-    </Card>
-    <Card style={{padding:0,display:"flex",flexDirection:"column"}}>
-      <div style={{overflowY:"auto",maxHeight:380,padding:14,display:"flex",flexDirection:"column",gap:10,minHeight:200}}>
-        {!msgs.length&&<div style={{color:C.textMuted,textAlign:"center",marginTop:60,fontSize:14}}>
-          {mode==="obd"&&"Fehlercode eingeben z.B. P0300
-oder Symptom beschreiben..."}
-          {mode==="parts"&&"Fahrzeug + Problem beschreiben
-welches Teil wird gesucht..."}
-          {mode==="diagnose"&&"Symptom genau beschreiben
-KI gibt Schritt-für-Schritt Diagnose..."}
-        </div>}
-        {msgs.map((m,i)=><div key={i} style={{alignSelf:m.r==="user"?"flex-end":"flex-start",background:m.r==="user"?C.accent:C.surfaceHigh,color:C.text,borderRadius:12,padding:"10px 14px",maxWidth:"90%",fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}>
-          {m.r==="ai"&&<div style={{color:C.accent,fontWeight:700,fontSize:11,marginBottom:4}}>🤖 KI-ASSISTENT</div>}
-          {m.t}
-        </div>)}
-        {loading&&<div style={{alignSelf:"flex-start",background:C.surfaceHigh,borderRadius:12,padding:"10px 14px",color:C.textMuted,fontSize:13}}>⏳ KI analysiert...</div>}
-        <div ref={bot}/>
-      </div>
-      <div style={{display:"flex",gap:8,padding:12,borderTop:`1px solid ${C.border}`}}>
-        <input value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&send()}
-          placeholder={mode==="obd"?"Fehlercode z.B. P0300 oder Symptom...":mode==="parts"?"Teil oder Problem beschreiben...":"Symptom genau beschreiben..."}
-          style={{flex:1,background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:13}}/>
-        <button onClick={send} disabled={loading||!inp.trim()} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"10px 20px",cursor:"pointer",fontWeight:700,fontSize:13,opacity:loading?0.5:1}}>▶ Senden</button>
-      </div>
-    </Card>
-    <Card style={{padding:14}}>
-      <div style={{color:C.textMuted,fontSize:11,fontWeight:700,marginBottom:8,letterSpacing:1}}>⚡ HÄUFIGE FEHLERCODES</div>
-      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {["P0300","P0171","P0420","P0115","U0001","P0340","P0700","C0031","P0172","P0128"].map(c=>
-          <button key={c} onClick={()=>{setInp(c);setMode("obd");}} title={OBD[c]?.d||c}
-            style={{background:C.surfaceHigh,color:C.text,border:`1px solid ${C.border}`,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontSize:12,fontWeight:600}}>{c}</button>
-        )}
-      </div>
-    </Card>
-  </div>;
+// ── PARTS ──
+function toggleNewPart() {
+  const f = document.getElementById('new-part-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addPart() {
+  const n = document.getElementById('np-name').value.trim();
+  const s = document.getElementById('np-sku').value.trim();
+  if(!n||!s) return;
+  parts.unshift({id:Date.now(),name:n,sku:s,brand:document.getElementById('np-brand').value,fit:document.getElementById('np-fit').value,price:+document.getElementById('np-price').value||0,stock:+document.getElementById('np-stock').value||0,min:+document.getElementById('np-min').value||0});
+  ['np-name','np-sku','np-brand','np-fit','np-price','np-stock','np-min'].forEach(id=>document.getElementById(id).value='');
+  toggleNewPart(); renderParts(); renderDashboard();
+}
+function renderParts() {
+  const q = (document.getElementById('parts-search').value||'').toLowerCase();
+  const f = parts.filter(p => !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q));
+  document.getElementById('parts-count').textContent = parts.length + ' Artikel';
+  document.getElementById('parts-list').innerHTML = f.map(p => `
+    <div class="part-row">
+      <div><div class="part-name">${p.name}</div><div class="part-meta">SKU: ${p.sku} · ${p.brand} · ${p.fit}</div></div>
+      <div style="text-align:right"><div class="part-price">€${Number(p.price).toFixed(2)}</div>
+      <div class="${p.stock<p.min?'stock-low':'stock-ok'}">${p.stock<p.min?'⚠ ':'✓ '}Bestand: ${p.stock}</div></div>
+    </div>`).join('');
 }
 
-function Workshop({jobs,setJobs}){
-  const [showNew,setShowNew]=React.useState(false);
-  const [nj,setNj]=React.useState({customer:"",vehicle:"",plate:"",service:"",mechanic:"",start:"",est:"",price:""});
-  const sl={in_progress:"In Arbeit",waiting:"Wartet",done:"Fertig"};
-  function add(){if(!nj.customer)return;setJobs(p=>[...p,{...nj,id:Date.now(),status:"waiting",price:+nj.price||0}]);setNj({customer:"",vehicle:"",plate:"",service:"",mechanic:"",start:"",est:"",price:""});setShowNew(false);}
-  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>🔧 Werkstatt & Aufträge</h2>
-      <div style={{color:C.textMuted,fontSize:13}}>{jobs.filter(j=>j.status!=="done").length} aktive Aufträge</div></div>
-      <Btn variant="accent" onClick={()=>setShowNew(!showNew)}>+ Neuer Auftrag</Btn>
-    </div>
-    {showNew&&<Card style={{borderColor:C.accent}}>
-      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neuen Auftrag erstellen</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-        {[["customer","Kunde *"],["vehicle","Fahrzeug *"],["plate","Kennzeichen"],["service","Leistung"],["mechanic","Mechaniker"],["start","Startzeit"],["est","Fertig ca."],["price","Preis (€)"]].map(([k,l])=>
-          <Inp key={k} value={nj[k]} onChange={e=>setNj(p=>({...p,[k]:e.target.value}))} placeholder={l}/>
-        )}
+// ── CUSTOMERS ──
+function toggleNewCustomer() {
+  const f = document.getElementById('new-customer-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+function addCustomer() {
+  const n = document.getElementById('nc-name').value.trim();
+  if(!n) return;
+  const v = document.getElementById('nc-vehicle').value.trim();
+  customers.unshift({id:Date.now(),name:n,phone:document.getElementById('nc-phone').value,email:document.getElementById('nc-email').value,vehicles:v?[v]:[]});
+  ['nc-name','nc-phone','nc-email','nc-vehicle'].forEach(id=>document.getElementById(id).value='');
+  toggleNewCustomer(); renderCustomers();
+}
+function renderCustomers() {
+  const q = (document.getElementById('customers-search').value||'').toLowerCase();
+  const f = customers.filter(c => !q || c.name.toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q));
+  document.getElementById('customers-count').textContent = customers.length + ' Kunden';
+  document.getElementById('customers-list').innerHTML = f.map(c => `
+    <div class="customer-row ${selectedCustomer===c.id?'selected':''}" onclick="toggleCustomer(${c.id})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700">${c.name}</div><div class="job-meta" style="margin-top:2px">📞 ${c.phone} · ✉ ${c.email}</div></div>
+        <div class="job-meta">🚗 ${c.vehicles.length}</div>
       </div>
-      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Erstellen</Btn><Btn onClick={()=>setShowNew(false)}>Abbrechen</Btn></div>
-    </Card>}
-    {jobs.map(j=><Card key={j.id}>
-      <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,marginBottom:10}}>
-        <div><div style={{color:C.text,fontWeight:700,fontSize:15}}>{j.customer}</div>
-        <div style={{color:C.textMuted,fontSize:12}}>🚗 {j.vehicle} · {j.plate}</div></div>
-        <div style={{display:"flex",alignItems:"center",gap:8}}><Badge t={sl[j.status]} c={j.status}/><span style={{color:C.accent,fontWeight:800,fontSize:16}}>€{j.price}</span></div>
-      </div>
-      <div style={{color:C.text,fontSize:13,marginBottom:6}}>🔩 {j.service}</div>
-      <div style={{color:C.textMuted,fontSize:12,marginBottom:12}}>👤 {j.mechanic} · ⏰ {j.start}–{j.est}</div>
-      <div style={{display:"flex",gap:6}}>
-        {["waiting","in_progress","done"].map(s=><button key={s} onClick={()=>setJobs(p=>p.map(x=>x.id===j.id?{...x,status:s}:x))} style={{background:j.status===s?C.accent:C.surfaceHigh,color:j.status===s?"#fff":C.textMuted,border:"none",borderRadius:6,padding:"5px 12px",cursor:"pointer",fontSize:12,fontWeight:600}}>{sl[s]}</button>)}
-      </div>
-    </Card>)}
-  </div>;
+      ${selectedCustomer===c.id ? '<div style="margin-top:10px;border-top:1px solid #252C3B;padding-top:10px">' + (c.vehicles.length ? c.vehicles.map(v=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid #252C3B">🚗 ${v}</div>`).join('') : '<div style="color:#7A8499;font-size:13px">Kein Fahrzeug hinterlegt</div>') + '</div>' : ''}
+    </div>`).join('');
+}
+function toggleCustomer(id) {
+  selectedCustomer = selectedCustomer === id ? null : id;
+  renderCustomers();
 }
 
-function Parts({parts,setParts}){
-  const [search,setSearch]=React.useState("");
-  const [showAdd,setShowAdd]=React.useState(false);
-  const [np,setNp]=React.useState({name:"",sku:"",price:"",stock:"",min:"",brand:"",fit:""});
-  const f=parts.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.sku.toLowerCase().includes(search.toLowerCase())||p.brand.toLowerCase().includes(search.toLowerCase()));
-  function add(){if(!np.name||!np.sku)return;setParts(p=>[...p,{...np,id:Date.now(),price:+np.price||0,stock:+np.stock||0,min:+np.min||0}]);setNp({name:"",sku:"",price:"",stock:"",min:"",brand:"",fit:""});setShowAdd(false);}
-  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>📦 Teile & Lager</h2>
-      <div style={{color:C.textMuted,fontSize:13}}>{parts.length} Artikel</div></div>
-      <Btn variant="accent" onClick={()=>setShowAdd(!showAdd)}>+ Neues Teil</Btn>
-    </div>
-    {showAdd&&<Card style={{borderColor:C.accent}}>
-      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neues Teil anlegen</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-        {[["name","Bezeichnung *"],["sku","SKU *"],["brand","Marke"],["fit","Kompatibel mit"],["price","Preis (€)"],["stock","Bestand"],["min","Mindestbestand"]].map(([k,l])=>
-          <Inp key={k} value={np[k]} onChange={e=>setNp(p=>({...p,[k]:e.target.value}))} placeholder={l}/>
-        )}
-      </div>
-      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Speichern</Btn><Btn onClick={()=>setShowAdd(false)}>Abbrechen</Btn></div>
-    </Card>}
-    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Suchen (Name, SKU, Marke)..."
-      style={{background:C.surface,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:14,width:"100%"}}/>
-    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-      {f.map(p=><Card key={p.id} style={{padding:14}}>
-        <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-          <div><div style={{color:C.text,fontWeight:700,fontSize:14}}>{p.name}</div>
-          <div style={{color:C.textMuted,fontSize:12,marginTop:2}}>SKU: {p.sku} · {p.brand} · {p.fit}</div></div>
-          <div style={{textAlign:"right"}}>
-            <div style={{color:C.accent,fontWeight:800,fontSize:16}}>€{Number(p.price).toFixed(2)}</div>
-            <div style={{color:p.stock<p.min?C.red:C.green,fontSize:12,fontWeight:700}}>{p.stock<p.min?"⚠ ":"✓ "}Bestand: {p.stock}</div>
-          </div>
-        </div>
-      </Card>)}
-      {!f.length&&<div style={{color:C.textMuted,textAlign:"center",padding:30}}>Keine Teile gefunden.</div>}
-    </div>
-  </div>;
+// ── INVOICES ──
+function toggleNewInvoice() {
+  const f = document.getElementById('new-invoice-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
 }
-
-function Customers(){
-  const [custs,setCusts]=React.useState(CUSTS0);
-  const [search,setSearch]=React.useState("");
-  const [sel,setSel]=React.useState(null);
-  const [showNew,setShowNew]=React.useState(false);
-  const [nc,setNc]=React.useState({name:"",phone:"",email:"",vehicle:""});
-  const f=custs.filter(c=>c.name.toLowerCase().includes(search.toLowerCase())||c.email?.includes(search));
-  function add(){if(!nc.name)return;setCusts(p=>[...p,{...nc,id:Date.now(),vehicles:nc.vehicle?[nc.vehicle]:[]}]);setNc({name:"",phone:"",email:"",vehicle:""});setShowNew(false);}
-  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>👥 Kunden & Fahrzeuge</h2>
-      <div style={{color:C.textMuted,fontSize:13}}>{custs.length} Kunden</div></div>
-      <Btn variant="accent" onClick={()=>setShowNew(!showNew)}>+ Neuer Kunde</Btn>
-    </div>
-    {showNew&&<Card style={{borderColor:C.accent}}>
-      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neuen Kunden anlegen</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-        {[["name","Name *"],["phone","Telefon"],["email","E-Mail"],["vehicle","Fahrzeug"]].map(([k,l])=>
-          <Inp key={k} value={nc[k]} onChange={e=>setNc(p=>({...p,[k]:e.target.value}))} placeholder={l}/>
-        )}
-      </div>
-      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Speichern</Btn><Btn onClick={()=>setShowNew(false)}>Abbrechen</Btn></div>
-    </Card>}
-    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Kunden suchen..."
-      style={{background:C.surface,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:14,width:"100%"}}/>
-    {f.map(c=><Card key={c.id} style={{cursor:"pointer",borderColor:sel===c.id?C.accent:C.border}} onClick={()=>setSel(sel===c.id?null:c.id)}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div><div style={{color:C.text,fontWeight:700}}>{c.name}</div>
-        <div style={{color:C.textMuted,fontSize:12,marginTop:2}}>📞 {c.phone} · ✉ {c.email}</div></div>
-        <div style={{color:C.textMuted,fontSize:12}}>🚗 {c.vehicles.length}</div>
-      </div>
-      {sel===c.id&&<div style={{marginTop:10,borderTop:`1px solid ${C.border}`,paddingTop:10}}>
-        {c.vehicles.map((v,i)=><div key={i} style={{color:C.text,fontSize:13,padding:"4px 0",borderBottom:`1px solid ${C.border}`}}>🚗 {v}</div>)}
-        {!c.vehicles.length&&<div style={{color:C.textMuted,fontSize:13}}>Kein Fahrzeug</div>}
-      </div>}
-    </Card>)}
-  </div>;
+function calcVat() {
+  const net = +document.getElementById('ni-net').value || 0;
+  document.getElementById('vat-preview').textContent = net ? `MwSt 19%: €${(net*0.19).toFixed(2)} · Brutto: €${(net*1.19).toFixed(2)}` : '';
 }
-
-function Invoices(){
-  const [invs,setInvs]=React.useState(INV0);
-  const [showNew,setShowNew]=React.useState(false);
-  const [ni,setNi]=React.useState({customer:"",service:"",net:"",status:"open"});
-  const sl={paid:"Bezahlt",open:"Offen",overdue:"Überfällig"};
-  function add(){
-    if(!ni.customer)return;
-    const net=+ni.net||0,tax=+(net*0.19).toFixed(2),total=+(net+tax).toFixed(2);
-    setInvs(p=>[{id:"RE-2025-"+String(p.length+42).padStart(3,"0"),customer:ni.customer,service:ni.service,date:new Date().toLocaleDateString("de-DE"),net,tax,total,status:ni.status},...p]);
-    setNi({customer:"",service:"",net:"",status:"open"});setShowNew(false);
-  }
-  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-      <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>💶 Rechnungen</h2>
-      <div style={{color:C.textMuted,fontSize:13}}>{invs.length} Rechnungen</div></div>
-      <Btn variant="accent" onClick={()=>setShowNew(!showNew)}>+ Neue Rechnung</Btn>
-    </div>
-    <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-      <Stat label="Offen" value={"€"+invs.filter(i=>i.status==="open").reduce((s,i)=>s+i.total,0).toFixed(0)} color={C.blue}/>
-      <Stat label="Überfällig" value={"€"+invs.filter(i=>i.status==="overdue").reduce((s,i)=>s+i.total,0).toFixed(0)} color={C.red}/>
-      <Stat label="Bezahlt" value={"€"+invs.filter(i=>i.status==="paid").reduce((s,i)=>s+i.total,0).toFixed(0)} color={C.green}/>
-    </div>
-    {showNew&&<Card style={{borderColor:C.accent}}>
-      <div style={{color:C.text,fontWeight:700,marginBottom:12}}>Neue Rechnung</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-        <Inp value={ni.customer} onChange={e=>setNi(p=>({...p,customer:e.target.value}))} placeholder="Kunde *"/>
-        <Inp value={ni.service} onChange={e=>setNi(p=>({...p,service:e.target.value}))} placeholder="Leistung"/>
-        <Inp value={ni.net} onChange={e=>setNi(p=>({...p,net:e.target.value}))} placeholder="Nettobetrag (€)" type="number"/>
-        <select value={ni.status} onChange={e=>setNi(p=>({...p,status:e.target.value}))}
-          style={{background:C.bg,color:C.text,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",fontSize:13}}>
-          <option value="open">Offen</option><option value="paid">Bezahlt</option><option value="overdue">Überfällig</option>
-        </select>
-      </div>
-      {ni.net&&<div style={{color:C.textMuted,fontSize:12,marginTop:6}}>MwSt 19%: €{(+ni.net*0.19).toFixed(2)} · Brutto: €{(+ni.net*1.19).toFixed(2)}</div>}
-      <div style={{display:"flex",gap:8,marginTop:10}}><Btn variant="accent" onClick={add}>Erstellen</Btn><Btn onClick={()=>setShowNew(false)}>Abbrechen</Btn></div>
-    </Card>}
-    {invs.map(inv=><Card key={inv.id}>
-      <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+function addInvoice() {
+  const c = document.getElementById('ni-customer').value.trim();
+  if(!c) return;
+  const net = +document.getElementById('ni-net').value || 0;
+  const tax = +(net*0.19).toFixed(2);
+  invoices.unshift({id:'RE-2025-'+String(invoices.length+42).padStart(3,'0'),customer:c,service:document.getElementById('ni-service').value,date:new Date().toLocaleDateString('de-DE'),net,tax,total:+(net+tax).toFixed(2),status:document.getElementById('ni-status').value});
+  ['ni-customer','ni-service','ni-net'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vat-preview').textContent='';
+  toggleNewInvoice(); renderInvoices();
+}
+function setInvStatus(id, s) {
+  invoices = invoices.map(i => i.id===id ? {...i,status:s} : i);
+  renderInvoices();
+}
+function renderInvoices() {
+  const sl = {paid:'Bezahlt',open:'Offen',overdue:'Überfällig'};
+  const bc = {paid:'bezahlt',open:'offen',overdue:'ueberfaellig'};
+  document.getElementById('invoices-count').textContent = invoices.length + ' Rechnungen';
+  const open = invoices.filter(i=>i.status==='open').reduce((s,i)=>s+i.total,0);
+  const ovr = invoices.filter(i=>i.status==='overdue').reduce((s,i)=>s+i.total,0);
+  const paid = invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0);
+  document.getElementById('inv-stats').innerHTML = `
+    <div class="stat" style="flex:1;min-width:100px"><div class="stat-label">OFFEN</div><div class="stat-value" style="color:#3B82F6">€${open.toFixed(0)}</div></div>
+    <div class="stat" style="flex:1;min-width:100px"><div class="stat-label">ÜBERFÄLLIG</div><div class="stat-value" style="color:#EF4444">€${ovr.toFixed(0)}</div></div>
+    <div class="stat" style="flex:1;min-width:100px"><div class="stat-label">BEZAHLT</div><div class="stat-value" style="color:#22C55E">€${paid.toFixed(0)}</div></div>`;
+  document.getElementById('invoices-list').innerHTML = invoices.map(inv => `
+    <div class="inv-row">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <div>
-          <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:4,flexWrap:"wrap"}}>
-            <span style={{color:C.accent,fontWeight:700,fontSize:13}}>{inv.id}</span>
-            <Badge t={sl[inv.status]} c={inv.status}/>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;flex-wrap:wrap">
+            <span class="inv-id">${inv.id}</span>
+            <span class="badge ${bc[inv.status]}">${sl[inv.status]}</span>
           </div>
-          <div style={{color:C.text,fontWeight:600}}>{inv.customer}</div>
-          <div style={{color:C.textMuted,fontSize:12,marginTop:2}}>{inv.service} · 📅 {inv.date}</div>
+          <div style="font-weight:600">${inv.customer}</div>
+          <div class="job-meta" style="margin-top:2px">${inv.service} · 📅 ${inv.date}</div>
         </div>
-        <div style={{textAlign:"right"}}>
-          <div style={{color:C.text,fontWeight:800,fontSize:18}}>€{inv.total.toFixed(2)}</div>
-          <div style={{color:C.textMuted,fontSize:11}}>Netto: €{inv.net.toFixed(2)} · MwSt: €{inv.tax.toFixed(2)}</div>
-          <div style={{display:"flex",gap:4,marginTop:6,justifyContent:"flex-end"}}>
-            {["open","paid","overdue"].map(s=><button key={s} onClick={()=>setInvs(p=>p.map(x=>x.id===inv.id?{...x,status:s}:x))} style={{background:inv.status===s?C.accent:C.surfaceHigh,color:inv.status===s?"#fff":C.textMuted,border:"none",borderRadius:5,padding:"3px 8px",cursor:"pointer",fontSize:11,fontWeight:600}}>{sl[s]}</button>)}
+        <div style="text-align:right">
+          <div class="inv-total">€${inv.total.toFixed(2)}</div>
+          <div class="inv-sub">Netto: €${inv.net.toFixed(2)} · MwSt: €${inv.tax.toFixed(2)}</div>
+          <div style="display:flex;gap:4px;margin-top:6px;justify-content:flex-end">
+            <button class="btn-status btn-small ${inv.status==='open'?'active':''}" onclick="setInvStatus('${inv.id}','open')">Offen</button>
+            <button class="btn-status btn-small ${inv.status==='paid'?'active':''}" onclick="setInvStatus('${inv.id}','paid')">Bezahlt</button>
+            <button class="btn-status btn-small ${inv.status==='overdue'?'active':''}" onclick="setInvStatus('${inv.id}','overdue')">Überfällig</button>
           </div>
         </div>
       </div>
-    </Card>)}
-  </div>;
+    </div>`).join('');
 }
 
-function Appointments(){
-  const days=["Mo","Di","Mi","Do","Fr","Sa"];
-  const appts=[
-    {day:0,time:"08:00",name:"Marcus Hoffmann",svc:"Inspektion",dur:120},
-    {day:0,time:"11:00",name:"Sandra Koch",svc:"Bremsen",dur:120},
-    {day:1,time:"09:00",name:"Julia Berger",svc:"Diagnose",dur:90},
-    {day:2,time:"10:30",name:"Dimitri P.",svc:"Stoßdämpfer",dur:180},
-    {day:3,time:"14:00",name:"Neukunde",svc:"Reifenwechsel",dur:60},
-    {day:4,time:"08:30",name:"Sandra Koch",svc:"Abholung",dur:30},
-  ];
-  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
-    <div><h2 style={{color:C.text,fontSize:22,fontWeight:800,margin:0}}>📅 Terminkalender</h2>
-    <div style={{color:C.textMuted,fontSize:13}}>{new Date().toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</div></div>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-      {days.map((d,i)=>{const da=appts.filter(a=>a.day===i);return <Card key={i} style={{padding:12}}>
-        <div style={{color:i===0?C.accent:C.textMuted,fontWeight:700,fontSize:13,marginBottom:8}}>{d}</div>
-        {!da.length?<div style={{color:C.textDim,fontSize:12}}>Frei</div>:da.map((a,j)=><div key={j} style={{background:C.bg,borderLeft:`3px solid ${C.accent}`,borderRadius:"0 6px 6px 0",padding:"6px 8px",marginBottom:6}}>
-          <div style={{color:C.accent,fontSize:11,fontWeight:700}}>{a.time}</div>
-          <div style={{color:C.text,fontSize:12,fontWeight:600}}>{a.name}</div>
-          <div style={{color:C.textMuted,fontSize:11}}>{a.svc} · {a.dur}min</div>
-        </div>)}
-      </Card>;})}
-    </div>
-    <Btn style={{alignSelf:"flex-start"}}>+ Neuen Termin</Btn>
-  </div>;
+// ── CALENDAR ──
+function renderCalendar() {
+  const days = ['Mo','Di','Mi','Do','Fr','Sa'];
+  document.getElementById('cal-grid').innerHTML = days.map((d,i) => {
+    const da = appointments.filter(a => a.day===i);
+    return `<div class="cal-day">
+      <div class="cal-day-name" style="color:${i===0?'#F97316':'#7A8499'}">${d}</div>
+      ${da.length ? da.map(a=>`<div class="cal-item"><div class="cal-time">${a.time}</div><div class="cal-name">${a.name}</div><div class="cal-svc">${a.svc} · ${a.dur}min</div></div>`).join('') : '<div style="color:#4A5568;font-size:12px">Frei</div>'}
+    </div>`;
+  }).join('');
 }
-
-// ── API KEY MANAGER ──
-function KeyManager(){
-  const [key,setKey]=React.useState(localStorage.getItem("ape_apikey")||"");
-  const [saved,setSaved]=React.useState(!!localStorage.getItem("ape_apikey"));
-  function save(){localStorage.setItem("ape_apikey",key);setSaved(true);setTimeout(()=>setSaved(false),2000);}
-  return <div style={{padding:"10px 12px",borderTop:`1px solid ${C.border}`}}>
-    <div style={{color:C.textMuted,fontSize:10,fontWeight:700,marginBottom:5,letterSpacing:1}}>ANTHROPIC API-KEY</div>
-    <input type="password" value={key} onChange={e=>{setKey(e.target.value);setSaved(false);}}
-      placeholder="sk-ant-..."
-      style={{width:"100%",background:C.bg,color:C.text,border:`1px solid ${saved?C.green:C.border}`,borderRadius:6,padding:"6px 8px",fontSize:11}}/>
-    <button onClick={save} style={{marginTop:5,width:"100%",background:saved?C.green:C.accent,color:"#fff",border:"none",borderRadius:6,padding:"5px",cursor:"pointer",fontSize:11,fontWeight:700}}>
-      {saved?"✓ Gespeichert!":"Speichern"}
-    </button>
-    {saved&&<div style={{color:C.green,fontSize:10,marginTop:3,textAlign:"center"}}>KI ist bereit ✓</div>}
-  </div>;
-}
-
-// ── APP ──
-const NAV=[
-  {id:"dashboard",e:"📊",l:"Dashboard"},
-  {id:"ai",e:"🤖",l:"KI-Assistent"},
-  {id:"workshop",e:"🔧",l:"Werkstatt"},
-  {id:"parts",e:"📦",l:"Teile & Lager"},
-  {id:"customers",e:"👥",l:"Kunden"},
-  {id:"invoices",e:"💶",l:"Rechnungen"},
-  {id:"appointments",e:"📅",l:"Termine"},
-];
-
-function App(){
-  const [view,setView]=React.useState("dashboard");
-  const [jobs,setJobs]=React.useState(JOBS0);
-  const [parts,setParts]=React.useState(PARTS0);
-
-  function V(){
-    switch(view){
-      case"dashboard":return <Dashboard jobs={jobs} parts={parts}/>;
-      case"ai":return <AIView/>;
-      case"workshop":return <Workshop jobs={jobs} setJobs={setJobs}/>;
-      case"parts":return <Parts parts={parts} setParts={setParts}/>;
-      case"customers":return <Customers/>;
-      case"invoices":return <Invoices/>;
-      case"appointments":return <Appointments/>;
-      default:return <Dashboard jobs={jobs} parts={parts}/>;
-    }
-  }
-
-  return <div style={{display:"flex",minHeight:"100vh",background:C.bg}}>
-    <div style={{width:205,background:C.surface,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,bottom:0,zIndex:100}}>
-      <div style={{padding:"18px 16px 14px",borderBottom:`1px solid ${C.border}`}}>
-        <div style={{color:C.accent,fontWeight:900,fontSize:16}}>⚙ AUTOPARTS</div>
-        <div style={{color:C.textMuted,fontSize:10,fontWeight:700,letterSpacing:2,marginTop:1}}>EXPRESS · KI-SYSTEM</div>
-      </div>
-      <div style={{flex:1,paddingTop:6,overflowY:"auto"}}>
-        {NAV.map(v=><button key={v.id} onClick={()=>setView(v.id)} style={{
-          display:"flex",alignItems:"center",gap:10,width:"100%",
-          background:view===v.id?C.accentGlow:"transparent",
-          borderLeft:`3px solid ${view===v.id?C.accent:"transparent"}`,
-          color:view===v.id?C.text:C.textMuted,
-          border:"none",borderLeftStyle:"solid",
-          padding:"11px 16px",cursor:"pointer",fontSize:13,fontWeight:view===v.id?700:400,textAlign:"left",
-        }}>
-          <span style={{fontSize:15}}>{v.e}</span>{v.l}
-          {v.id==="ai"&&<span style={{background:C.accent,color:"#fff",fontSize:9,fontWeight:900,borderRadius:4,padding:"1px 5px",marginLeft:"auto"}}>KI</span>}
-        </button>)}
-      </div>
-      <KeyManager/>
-      <div style={{padding:"8px 16px",borderTop:`1px solid ${C.border}`,color:C.textDim,fontSize:10}}>Autoparts Express v2.0</div>
-    </div>
-    <div style={{marginLeft:205,flex:1,padding:24,overflowX:"hidden"}}>
-      <V/>
-    </div>
-  </div>;
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
